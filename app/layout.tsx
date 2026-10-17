@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "Fastzlive - Breaking News & Live Updates",
+    default: "Fastzlive",
     template: "%s | Fastzlive",
   },
 
