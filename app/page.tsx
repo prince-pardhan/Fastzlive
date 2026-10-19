@@ -70,16 +70,16 @@ const ACCENT = "#e30613";
 const FONT = "'Inter', system-ui, -apple-system, sans-serif";
 
 const CATEGORIES = [
-  { key: "all", label: "All News", icon: "▦" },
-  { key: "india", label: "India", icon: "🇮🇳" },
-  { key: "world", label: "World", icon: "🌐" },
-  { key: "politics", label: "Politics", icon: "🏛" },
-  { key: "business", label: "Business", icon: "📈" },
-  { key: "technology", label: "Technology", icon: "💻" },
-  { key: "sports", label: "Sports", icon: "⚽" },
-  { key: "entertainment", label: "Entertainment", icon: "🎬" },
-  { key: "education", label: "Education", icon: "🎓" },
-  { key: "health", label: "Health", icon: "❤️" },
+  { key: "all", label: "All News", icon: "" },
+  { key: "india", label: "India", icon: "" },
+  { key: "world", label: "World", icon: "" },
+  { key: "politics", label: "Politics", icon: "" },
+  { key: "business", label: "Business", icon: "" },
+  { key: "technology", label: "Technology", icon: "" },
+  { key: "sports", label: "Sports", icon: "" },
+  { key: "entertainment", label: "Entertainment", icon: "" },
+  { key: "education", label: "Education", icon: "" },
+  { key: "health", label: "Health", icon: "" },
 ];
 
 const LANGUAGES = [
@@ -145,7 +145,7 @@ export default function Home() {
   const [translating, setTranslating] = useState(false);
 
   // ─── DARK MODE STATE ───────────────────────────────────────────────────────
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   // Load saved dark mode preference
   useEffect(() => {
