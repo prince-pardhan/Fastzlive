@@ -37,6 +37,11 @@ import {
   IconChevronLeft,
   IconLanguage,
 } from "@tabler/icons-react";
+import { FaWhatsapp } from "react-icons/fa";
+import { RiTwitterXLine } from "react-icons/ri";
+import { FaYoutube } from "react-icons/fa";
+
+
 import { createClient } from "@base44/sdk";
 
 // ─── Multiple Base44 App Configs ────────────────────────────────────────────
@@ -55,6 +60,8 @@ const BASE44_SOURCES = [
   { appId: "6a9fc3ec7fb02e0fe4f0af78", entity: "News", label: "Source 12" },
   { appId: "6ab4c3844cd0d31fd45fd867", entity: "News", label: "Source 13" },
   { appId: "6aa8edc0e27445204a122451", entity: "News", label: "Source 14" },
+  { appId: "6ad5a10119c682645e9cf5dd", entity: "News", label: "Source 15" },
+  { appId: "6ad5a094c13f37fe65e17d12", entity: "NewsArticle", label: "Source 16" },
 ];
 
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN"; // apna token daalein
@@ -136,7 +143,7 @@ export default function Home() {
   const [selectedLang, setSelectedLang] = useState("en");
   const [translatedCache, setTranslatedCache] = useState<Record<string, { title: string; desc: string }>>({});
   const [translating, setTranslating] = useState(false);
-  
+
   // ─── DARK MODE STATE ───────────────────────────────────────────────────────
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
@@ -198,7 +205,7 @@ export default function Home() {
         });
         const results = await Promise.all(promises);
         results.forEach((arr) => allResults.push(...arr));
-        
+
         allResults.sort((a, b) => {
           const dateA = new Date(
             a.created_date || a.createdAt || a.published_at || a.date || 0
@@ -249,7 +256,7 @@ export default function Home() {
       for (const item of toTranslate) {
         const id = item.id || (item.title || item.name || "item");
         const cacheKey = id + "_" + selectedLang;
-        
+
         if (newCache[cacheKey]) continue;
 
         const rawTitle = item.title || item.name || item.headline || "";
@@ -265,7 +272,7 @@ export default function Home() {
           // ignore error
         }
       }
-      
+
       if (isMounted) {
         setTranslatedCache(newCache);
         setTranslating(false);
@@ -422,7 +429,7 @@ export default function Home() {
                   }}
                 />
                 <Text fw={800} size="lg" style={{ color: ACCENT }}>
-                  LiveUpdate24
+                  Fastzlive
                 </Text>
               </Group>
               <Group gap="xs">
@@ -584,7 +591,7 @@ export default function Home() {
             {/* Logo */}
             <Group gap={8} style={{ flexShrink: 0 }}>
               <Text fw={900} size="xl" style={{ color: ACCENT, letterSpacing: -0.5, lineHeight: 1 }}>
-                LiveUpdate24
+                Fastzlive
               </Text>
             </Group>
 
@@ -902,19 +909,70 @@ export default function Home() {
               >
                 <Group justify="space-between" mb={4}>
                   <Group gap={6}>
-                    <IconCloud size={22} color="#3b82f6" />
                     <Text fw={700} size="sm" c={themeColors.textPrimary}>
-                      New Delhi
+                      Fastzlive.com
                     </Text>
+                    <a
+                      href="https://chat.whatsapp.com/IMG3IepRZXyGLxYeG9QXKH?s=cl&p=a&mlu=4&ilr=4"
+                      
+                      rel="noopener noreferrer"
+                      aria-label="Join WhatsApp Group"
+                      style={{
+                        color: "#25D366",
+                        fontSize: "36px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <FaWhatsapp />
+                    </a>
+                    <a
+                      href="https://x.com/LiveUpdate_"
+                      
+                      rel="noopener noreferrer"
+                      aria-label="Follow on X"
+                      style={{
+                        color: "#fefdfd",
+                        fontSize: "28px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <RiTwitterXLine />
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@Fastzlive"
+                      
+                      rel="noopener noreferrer"
+                      aria-label="Subscribe on YouTube"
+                      style={{
+                        color: "#FF0000",
+                        fontSize: "32px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <FaYoutube />
+                    </a>
                   </Group>
                 </Group>
                 <Group align="flex-end" gap={4}>
-                  <Text fw={800} style={{ fontSize: 32, lineHeight: 1 }} c={themeColors.textPrimary}>
-                    28°C
+                  <Text fw={900} style={{ fontSize: 32, lineHeight: 1 }} c={themeColors.textPrimary}>
+                    Ramesh kumar
                   </Text>
-                  <Text size="xs" c={themeColors.textSecondary} mb={4}>
-                    H: 32° · L: 20°
-                  </Text>
+
                 </Group>
               </Paper>
 
@@ -982,9 +1040,8 @@ export default function Home() {
                   padding: "10px 14px",
                   borderRadius: 12,
                   background: activeCategory === cat.key ? ACCENT : themeColors.cardBg,
-                  border: `1px solid ${
-                    activeCategory === cat.key ? ACCENT : themeColors.cardBorder
-                  }`,
+                  border: `1px solid ${activeCategory === cat.key ? ACCENT : themeColors.cardBorder
+                    }`,
                   minWidth: 84,
                   transition: "all 0.15s",
                 }}
