@@ -13,7 +13,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const SITE_URL = "https://fastzlive.online";
+const SITE_URL = "https://fastzlive.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
