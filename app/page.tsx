@@ -859,7 +859,7 @@ export default function Home() {
                 style={{ flexShrink: 0 }}
               >
                 {t("breaking")}
-              </Badge>
+              </Badge>   
               <Text
                 size="sm"
                 fw={600}
@@ -881,7 +881,7 @@ export default function Home() {
             <Grid>
               {/* Big Featured */}
               <Grid.Col span={{ base: 12, md: 7 }}>
-                {featured && (
+                {featured && (    
                   <Box
                     style={{
                       position: "relative",
