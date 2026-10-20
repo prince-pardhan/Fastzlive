@@ -24,6 +24,7 @@ import {
   ScrollArea,
   Paper,
   Menu,
+  Select,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -36,11 +37,13 @@ import {
   IconCloud,
   IconChevronLeft,
   IconLanguage,
+  IconMapPin,
+  IconWind,
+  IconDroplet,
 } from "@tabler/icons-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { RiTwitterXLine } from "react-icons/ri";
 import { FaYoutube } from "react-icons/fa";
-
 
 import { createClient } from "@base44/sdk";
 
@@ -96,6 +99,50 @@ const LANGUAGES = [
   { code: "ur", label: "Urdu", native: "اردو" },
 ];
 
+// ─── Indian States / Major Cities for Weather ───────────────────────────────
+const WEATHER_CITIES = [
+  { name: "Delhi", state: "दिल्ली", lat: 28.6139, lon: 77.2090 },
+  { name: "Mumbai", state: "महाराष्ट्र", lat: 19.0760, lon: 72.8777 },
+  { name: "Kolkata", state: "पश्चिम बंगाल", lat: 22.5726, lon: 88.3639 },
+  { name: "Chennai", state: "तमिलनाडु", lat: 13.0827, lon: 80.2707 },
+  { name: "Bengaluru", state: "कर्नाटक", lat: 12.9716, lon: 77.5946 },
+  { name: "Hyderabad", state: "तेलंगाना", lat: 17.3850, lon: 78.4867 },
+  { name: "Ahmedabad", state: "गुजरात", lat: 23.0225, lon: 72.5714 },
+  { name: "Jaipur", state: "राजस्थान", lat: 26.9124, lon: 75.7873 },
+  { name: "Lucknow", state: "उत्तर प्रदेश", lat: 26.8467, lon: 80.9462 },
+  { name: "Chandigarh", state: "पंजाब/हरियाणा", lat: 30.7333, lon: 76.7794 },
+  { name: "Bhopal", state: "मध्य प्रदेश", lat: 23.2599, lon: 77.4126 },
+  { name: "Patna", state: "बिहार", lat: 25.5941, lon: 85.1376 },
+  { name: "Guwahati", state: "असम", lat: 26.1445, lon: 91.7362 },
+  { name: "Thiruvananthapuram", state: "केरल", lat: 8.5241, lon: 76.9366 },
+  { name: "Ranchi", state: "झारखंड", lat: 23.3441, lon: 85.3096 },
+  { name: "Raipur", state: "छत्तीसगढ़", lat: 21.2514, lon: 81.6296 },
+];
+
+const WEATHER_CODES: Record<number, { en: string; hi: string; icon: string }> = {
+  0: { en: "Clear sky", hi: "साफ आसमान", icon: "☀️" },
+  1: { en: "Mainly clear", hi: "मुख्यतः साफ", icon: "🌤️" },
+  2: { en: "Partly cloudy", hi: "आंशिक बादल", icon: "⛅" },
+  3: { en: "Overcast", hi: "घने बादल", icon: "☁️" },
+  45: { en: "Fog", hi: "कोहरा", icon: "🌫️" },
+  48: { en: "Depositing rime fog", hi: "कोहरा", icon: "🌫️" },
+  51: { en: "Light drizzle", hi: "हल्की बूंदाबांदी", icon: "🌦️" },
+  53: { en: "Moderate drizzle", hi: "मध्यम बूंदाबांदी", icon: "🌦️" },
+  55: { en: "Dense drizzle", hi: "तेज बूंदाबांदी", icon: "🌧️" },
+  61: { en: "Slight rain", hi: "हल्की बारिश", icon: "🌧️" },
+  63: { en: "Moderate rain", hi: "मध्यम बारिश", icon: "🌧️" },
+  65: { en: "Heavy rain", hi: "तेज बारिश", icon: "🌧️" },
+  71: { en: "Slight snow", hi: "हल्की बर्फबारी", icon: "❄️" },
+  73: { en: "Moderate snow", hi: "मध्यम बर्फबारी", icon: "❄️" },
+  75: { en: "Heavy snow", hi: "तेज बर्फबारी", icon: "❄️" },
+  80: { en: "Slight rain showers", hi: "हल्की बौछारें", icon: "🌦️" },
+  81: { en: "Moderate rain showers", hi: "मध्यम बौछारें", icon: "🌧️" },
+  82: { en: "Violent rain showers", hi: "तेज बौछारें", icon: "⛈️" },
+  95: { en: "Thunderstorm", hi: "आंधी-तूफान", icon: "⛈️" },
+  96: { en: "Thunderstorm with hail", hi: "ओलावृष्टि के साथ तूफान", icon: "⛈️" },
+  99: { en: "Thunderstorm with heavy hail", hi: "तेज ओलावृष्टि", icon: "⛈️" },
+};
+
 const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     loading: "Loading news from all sources...",
@@ -113,6 +160,12 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     world: "World",
     business: "Business",
     sports: "Sports",
+    weather: "Live Weather",
+    humidity: "Humidity",
+    wind: "Wind",
+    selectCity: "Select City / State",
+    updated: "Updated",
+    feelLike: "Feels like",
   },
   hi: {
     loading: "सभी स्रोतों से समाचार लोड हो रहे हैं...",
@@ -130,6 +183,12 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     world: "विश्व",
     business: "व्यापार",
     sports: "खेल",
+    weather: "लाइव मौसम",
+    humidity: "नमी",
+    wind: "हवा",
+    selectCity: "शहर / राज्य चुनें",
+    updated: "अपडेट",
+    feelLike: "महसूस",
   },
 };
 
@@ -140,12 +199,18 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLang, setSelectedLang] = useState("en");
+  const [selectedLang, setSelectedLang] = useState("hi"); // DEFAULT HINDI
   const [translatedCache, setTranslatedCache] = useState<Record<string, { title: string; desc: string }>>({});
   const [translating, setTranslating] = useState(false);
 
   // ─── DARK MODE STATE ───────────────────────────────────────────────────────
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+
+  // ─── WEATHER STATE ─────────────────────────────────────────────────────────
+  const [selectedCity, setSelectedCity] = useState(WEATHER_CITIES[0]);
+  const [weatherData, setWeatherData] = useState<any>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [lastWeatherUpdate, setLastWeatherUpdate] = useState<Date | null>(null);
 
   // Load saved dark mode preference
   useEffect(() => {
@@ -174,6 +239,7 @@ export default function Home() {
     inputBg: isDarkMode ? "#1e293b" : "#f1f5f9",
   };
 
+  // ─── FETCH NEWS ────────────────────────────────────────────────────────────
   useEffect(() => {
     async function fetchAllNews() {
       try {
@@ -226,7 +292,34 @@ export default function Home() {
     fetchAllNews();
   }, []);
 
-  // ─── GOOGLE TRANSLATE API HELPER (Reliable & Fast) ─────────────────────────
+  // ─── LIVE WEATHER FETCH (Open-Meteo - Free, No API Key) ────────────────────
+  const fetchWeather = async (city: typeof WEATHER_CITIES[0]) => {
+    try {
+      setWeatherLoading(true);
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=Asia%2FKolkata`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.current) {
+        setWeatherData(data.current);
+        setLastWeatherUpdate(new Date());
+      }
+    } catch (err) {
+      console.warn("Weather fetch failed:", err);
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
+  // Initial weather + auto refresh every 10 minutes
+  useEffect(() => {
+    fetchWeather(selectedCity);
+    const interval = setInterval(() => {
+      fetchWeather(selectedCity);
+    }, 10 * 60 * 1000); // 10 minutes
+    return () => clearInterval(interval);
+  }, [selectedCity]);
+
+  // ─── GOOGLE TRANSLATE API HELPER ───────────────────────────────────────────
   async function translateText(text: string, targetLang: string): Promise<string> {
     if (!text || targetLang === "en") return text;
     try {
@@ -338,10 +431,12 @@ export default function Home() {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (hours < 1) return "Just now";
-    if (hours < 24) return `${hours} hr ago`;
+    if (hours < 1) return selectedLang === "hi" ? "अभी अभी" : "Just now";
+    if (hours < 24) return selectedLang === "hi" ? `${hours} घंटे पहले` : `${hours} hr ago`;
     const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? "s" : ""} ago`;
+    return selectedLang === "hi"
+      ? `${days} दिन पहले`
+      : `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
   const getBadge = (item: any) =>
@@ -376,6 +471,16 @@ export default function Home() {
   const worldNews = filteredNews.filter((n) => getCategoryKey(n) === "world").slice(0, 1);
   const businessNews = filteredNews.filter((n) => getCategoryKey(n) === "business").slice(0, 1);
   const sportsNews = filteredNews.filter((n) => getCategoryKey(n) === "sports").slice(0, 1);
+
+  // Weather helpers
+  const getWeatherText = (code: number) => {
+    const info = WEATHER_CODES[code] || { en: "Unknown", hi: "अज्ञात", icon: "🌡️" };
+    return selectedLang === "hi" ? info.hi : info.en;
+  };
+
+  const getWeatherIcon = (code: number) => {
+    return WEATHER_CODES[code]?.icon || "🌡️";
+  };
 
   // ─── LOADING ──────────────────────────────────────────────────────────────
   if (loading) {
@@ -896,10 +1001,119 @@ export default function Home() {
             </Grid>
           </Grid.Col>
 
-          {/* RIGHT – Weather + Top News */}
+          {/* RIGHT – Weather + Social + Top News */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Stack gap="md">
-              {/* Weather Card */}
+              {/* ═══════ LIVE WEATHER CARD ═══════ */}
+              <Paper
+                p="md"
+                radius="md"
+                withBorder
+                bg={themeColors.cardBg}
+                style={{ borderColor: themeColors.cardBorder }}
+              >
+                <Group justify="space-between" mb="sm">
+                  <Group gap={6}>
+                    <IconCloud size={18} color={ACCENT} />
+                    <Text fw={900} size="sm" c={themeColors.textPrimary}>
+                      {t("weather")}
+                    </Text>
+                  </Group>
+                  {lastWeatherUpdate && (
+                    <Text size="xs" c={themeColors.textSecondary}>
+                      {t("updated")}: {lastWeatherUpdate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                    </Text>
+                  )}
+                </Group>
+
+                {/* City Selector */}
+                <Select
+                
+                  placeholder={t("selectCity")}
+                  data={WEATHER_CITIES.map((c) => ({
+                    value: c.name,
+                    label: selectedLang === "hi" ? `${c.name} (${c.state})` : `${c.name} (${c.state})`,
+                  }))}
+                  value={selectedCity.name}
+                  onChange={(val) => {
+                    const city = WEATHER_CITIES.find((c) => c.name === val);
+                    if (city) setSelectedCity(city);
+                  }}
+                  size="xs"
+                  radius="md"
+                  mb="md"
+                  
+                  styles={{
+                    
+                    input: {
+                      background: themeColors.inputBg,
+                      color: themeColors.textPrimary,
+                      borderColor: themeColors.cardBorder,
+                    },
+                    
+                  }}
+                />
+
+                {weatherLoading ? (
+                  <Center py="md">
+                    <Loader size="sm" color={ACCENT} />
+                  </Center>
+                ) : weatherData ? (
+                  <Box>
+                    <Group justify="space-between" align="flex-start" mb="xs">
+                      <Box>
+                        <Text size="xs" c={themeColors.textSecondary} mb={2}>
+                          <IconMapPin size={12} style={{ display: "inline", marginRight: 4 }} />
+                          {selectedCity.name}
+                        </Text>
+                        <Text fw={900} style={{ fontSize: 36, lineHeight: 1 }} c={themeColors.textPrimary}>
+                          {Math.round(weatherData.temperature_2m)}°
+                        </Text>
+                        <Text size="sm" c={themeColors.textSecondary}>
+                          {t("feelLike")} {Math.round(weatherData.apparent_temperature)}°
+                        </Text>
+                      </Box>
+                      <Box ta="right">
+                        <Text style={{ fontSize: 42, lineHeight: 1 }}>
+                          {getWeatherIcon(weatherData.weather_code)}
+                        </Text>
+                        <Text size="sm" fw={600} c={themeColors.textPrimary} mt={4}>
+                          {getWeatherText(weatherData.weather_code)}
+                        </Text>
+                      </Box>
+                    </Group>
+
+                    <Divider my="sm" color={themeColors.cardBorder} />
+
+                    <Group grow>
+                      <Box ta="center">
+                        <IconDroplet size={16} color="#38bdf8" style={{ marginBottom: 4 }} />
+                        <Text size="xs" c={themeColors.textSecondary}>
+                          {t("humidity")}
+                        </Text>
+                        <Text size="sm" fw={700} c={themeColors.textPrimary}>
+                          {weatherData.relative_humidity_2m}%
+                        </Text>
+                      </Box>
+                      <Box ta="center">
+                        <IconWind size={16} color="#94a3b8" style={{ marginBottom: 4 }} />
+                        <Text size="xs" c={themeColors.textSecondary}>
+                          {t("wind")}
+                        </Text>
+                        <Text size="sm" fw={700} c={themeColors.textPrimary}>
+                          {Math.round(weatherData.wind_speed_10m)} km/h
+                        </Text>
+                      </Box>
+                    </Group>
+                  </Box>
+                ) : (
+                  <Text size="sm" c={themeColors.textSecondary} ta="center">
+                    Weather data unavailable
+                  </Text>
+                )}
+              </Paper>
+
+              {/* Social Links Card */}
               <Paper
                 p="md"
                 radius="md"
@@ -909,70 +1123,70 @@ export default function Home() {
               >
                 <Group justify="space-between" mb={4}>
                   <Group gap={6}>
-                    <Text fw={700} size="sm" c={themeColors.textPrimary}>
-                      Fastzlive.com
+                    <Text fw={900} size="sm" color={themeColors.textPrimary}>
+                      Fastzlive.com 
                     </Text>
+                    <br />
                     <a
                       href="https://chat.whatsapp.com/IMG3IepRZXyGLxYeG9QXKH?s=cl&p=a&mlu=4&ilr=4"
-                      
                       rel="noopener noreferrer"
                       aria-label="Join WhatsApp Group"
                       style={{
                         color: "#25D366",
-                        fontSize: "36px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <FaWhatsapp />
-                    </a>
-                    <a
-                      href="https://x.com/LiveUpdate_"
-                      
-                      rel="noopener noreferrer"
-                      aria-label="Follow on X"
-                      style={{
-                        color: "#fefdfd",
                         fontSize: "28px",
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
                         textDecoration: "none",
                         cursor: "pointer",
-                        transition: "all 0.3s ease",
                       }}
                     >
-                      <RiTwitterXLine />
+                      <FaWhatsapp />
                     </a>
+                    <br />
                     <a
-                      href="https://www.youtube.com/@Fastzlive"
-                      
+                      href="https://x.com/LiveUpdate_"
                       rel="noopener noreferrer"
-                      aria-label="Subscribe on YouTube"
+                      aria-label="Follow on X"
                       style={{
-                        color: "#FF0000",
-                        fontSize: "32px",
+                        color: isDarkMode ? "#fefdfd" : "#0f172a",
+                        fontSize: "24px",
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
                         textDecoration: "none",
                         cursor: "pointer",
-                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      <RiTwitterXLine />
+                      
+                    </a>
+                    <br />
+                    <a
+                      href="https://www.youtube.com/@Fastzlive"
+                      rel="noopener noreferrer"
+                      aria-label="Subscribe on YouTube"
+                      style={{
+                        color: "#FF0000",
+                        fontSize: "28px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
                       }}
                     >
                       <FaYoutube />
                     </a>
+                    <br />
+                    <br />
+                   
                   </Group>
                 </Group>
                 <Group align="flex-end" gap={4}>
-                  <Text fw={900} style={{ fontSize: 32, lineHeight: 1 }} c={themeColors.textPrimary}>
+                  <Text fw={900} style={{ fontSize: 22, lineHeight: 1 }} c={themeColors.textPrimary}>
                     Ramesh kumar
                   </Text>
-
                 </Group>
               </Paper>
 
@@ -1040,8 +1254,9 @@ export default function Home() {
                   padding: "10px 14px",
                   borderRadius: 12,
                   background: activeCategory === cat.key ? ACCENT : themeColors.cardBg,
-                  border: `1px solid ${activeCategory === cat.key ? ACCENT : themeColors.cardBorder
-                    }`,
+                  border: `1px solid ${
+                    activeCategory === cat.key ? ACCENT : themeColors.cardBorder
+                  }`,
                   minWidth: 84,
                   transition: "all 0.15s",
                 }}
