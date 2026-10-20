@@ -1189,7 +1189,7 @@ export default function Home() {
                     Ramesh kumar
                   </Text> <br />
                   <Button component="a" href="/paper">
-  hii
+  News Paper
 </Button>
                 </Group>
               </Paper>
