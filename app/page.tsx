@@ -536,6 +536,7 @@ export default function Home() {
                 <Text fw={800} size="lg" style={{ color: ACCENT }}>
                   Fastzlive
                 </Text>
+                
               </Group>
               <Group gap="xs">
                 <ActionIcon
@@ -1186,7 +1187,10 @@ export default function Home() {
                 <Group align="flex-end" gap={4}>
                   <Text fw={900} style={{ fontSize: 22, lineHeight: 1 }} c={themeColors.textPrimary}>
                     Ramesh kumar
-                  </Text>
+                  </Text> <br />
+                  <Button component="a" href="/paper">
+  hii
+</Button>
                 </Group>
               </Paper>
 
