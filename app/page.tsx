@@ -199,7 +199,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLang, setSelectedLang] = useState("hi"); // DEFAULT HINDI
+  const [selectedLang, setSelectedLang] = useState("en"); // DEFAULT ENGLISH
   const [translatedCache, setTranslatedCache] = useState<Record<string, { title: string; desc: string }>>({});
   const [translating, setTranslating] = useState(false);
 
@@ -536,7 +536,6 @@ export default function Home() {
                 <Text fw={800} size="lg" style={{ color: ACCENT }}>
                   Fastzlive
                 </Text>
-                
               </Group>
               <Group gap="xs">
                 <ActionIcon
@@ -738,7 +737,7 @@ export default function Home() {
                   </Button>
                 </Menu.Target>
                 <Menu.Dropdown bg={themeColors.cardBg} style={{ borderColor: themeColors.cardBorder }}>
-                  <Menu.Label c={themeColors.textSecondary}>भारतीय भाषाएँ (Select Language)</Menu.Label>
+                  <Menu.Label c={themeColors.textSecondary}>Select Language</Menu.Label>
                   {LANGUAGES.map((lang) => (
                     <Menu.Item
                       key={lang.code}
@@ -859,7 +858,7 @@ export default function Home() {
                 style={{ flexShrink: 0 }}
               >
                 {t("breaking")}
-              </Badge>   
+              </Badge>
               <Text
                 size="sm"
                 fw={600}
@@ -881,7 +880,7 @@ export default function Home() {
             <Grid>
               {/* Big Featured */}
               <Grid.Col span={{ base: 12, md: 7 }}>
-                {featured && (    
+                {featured && (
                   <Box
                     style={{
                       position: "relative",
@@ -1029,7 +1028,6 @@ export default function Home() {
 
                 {/* City Selector */}
                 <Select
-                
                   placeholder={t("selectCity")}
                   data={WEATHER_CITIES.map((c) => ({
                     value: c.name,
@@ -1043,15 +1041,12 @@ export default function Home() {
                   size="xs"
                   radius="md"
                   mb="md"
-                  
                   styles={{
-                    
                     input: {
                       background: themeColors.inputBg,
                       color: themeColors.textPrimary,
                       borderColor: themeColors.cardBorder,
                     },
-                    
                   }}
                 />
 
@@ -1125,7 +1120,7 @@ export default function Home() {
                 <Group justify="space-between" mb={4}>
                   <Group gap={6}>
                     <Text fw={900} size="sm" color={themeColors.textPrimary}>
-                      Fastzlive.com 
+                      Fastzlive.com
                     </Text>
                     <br />
                     <a
@@ -1160,7 +1155,6 @@ export default function Home() {
                       }}
                     >
                       <RiTwitterXLine />
-                      
                     </a>
                     <br />
                     <a
@@ -1181,16 +1175,16 @@ export default function Home() {
                     </a>
                     <br />
                     <br />
-                   
                   </Group>
                 </Group>
                 <Group align="flex-end" gap={4}>
                   <Text fw={900} style={{ fontSize: 22, lineHeight: 1 }} c={themeColors.textPrimary}>
                     Ramesh kumar
-                  </Text> <br />
+                  </Text>
+                  <br />
                   <Button component="a" href="/paper">
-  News Paper
-</Button>
+                    News Paper
+                  </Button>
                 </Group>
               </Paper>
 
