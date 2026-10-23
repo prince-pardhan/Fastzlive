@@ -65,6 +65,7 @@ const BASE44_SOURCES = [
   { appId: "6aa8edc0e27445204a122451", entity: "News", label: "Source 14" },
   { appId: "6ad5a10119c682645e9cf5dd", entity: "News", label: "Source 15" },
   { appId: "6ad5a094c13f37fe65e17d12", entity: "NewsArticle", label: "Source 16" },
+  { appId: "6adadbbcd1a9f75d48aa7328", entity: "News", label: "Source 16" },
 ];
 
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN"; // apna token daalein
