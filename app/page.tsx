@@ -70,91 +70,6 @@ const BASE44_SOURCES = [
 
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN"; // apna token daalein
 
-// ─── GET BY ID HELPERS (added – no other code changed) ───────────────────────
-async function getNewsById(appId: string, entity: string, recordId: string) {
-  const base44 = createClient({
-    appId,
-    headers: {
-      Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}`,
-    },
-  });
-  return await base44.entities[entity].get(recordId);
-}
-
-// Convenience wrappers for every source (exact same pattern you provided)
-async function getSource1(recordId: string) {
-  return getNewsById("6ac73942c980e55d9137380b", "News", recordId);
-}
-async function getSource2(recordId: string) {
-  return getNewsById("6ac47ab69017eaaaca59d2b6", "NewsArticle", recordId);
-}
-async function getSource3(recordId: string) {
-  return getNewsById("6ac74166b60dfff87e4daa42", "News", recordId);
-}
-async function getSource4(recordId: string) {
-  return getNewsById("6ac739626c09d4a58a836242", "News", recordId);
-}
-async function getSource5(recordId: string) {
-  return getNewsById("6ac886b5654b5b3de6285403", "News", recordId);
-}
-async function getSource6(recordId: string) {
-  return getNewsById("6ac8879bc192246ca1e81374", "News", recordId);
-}
-async function getSource7(recordId: string) {
-  return getNewsById("6ac88f5d592444cfa59f9489", "News", recordId);
-}
-async function getSource8(recordId: string) {
-  return getNewsById("6ac9d498df194de5527bec19", "News", recordId);
-}
-async function getSource9(recordId: string) {
-  return getNewsById("6aa8e8cfd6878fb3c6c66a6d", "News", recordId);
-}
-async function getSource10(recordId: string) {
-  return getNewsById("6ac9d305c9956c412b63d620", "Article", recordId);
-}
-async function getSource11(recordId: string) {
-  return getNewsById("6ab4c278a87c64b26180c135", "News", recordId);
-}
-async function getSource12(recordId: string) {
-  return getNewsById("6a9fc3ec7fb02e0fe4f0af78", "News", recordId);
-}
-async function getSource13(recordId: string) {
-  return getNewsById("6ab4c3844cd0d31fd45fd867", "News", recordId);
-}
-async function getSource14(recordId: string) {
-  return getNewsById("6aa8edc0e27445204a122451", "News", recordId);
-}
-async function getSource15(recordId: string) {
-  return getNewsById("6ad5a10119c682645e9cf5dd", "News", recordId);
-}
-async function getSource16(recordId: string) {
-  return getNewsById("6ad5a094c13f37fe65e17d12", "NewsArticle", recordId);
-}
-async function getSource17(recordId: string) {
-  return getNewsById("6adadbbcd1a9f75d48aa7328", "News", recordId);
-}
-
-// Map label → get function so we can call the correct one from list data
-const GET_BY_SOURCE: Record<string, (id: string) => Promise<any>> = {
-  "Source 1": getSource1,
-  "Source 2": getSource2,
-  "Source 3": getSource3,
-  "Source 4": getSource4,
-  "Source 5": getSource5,
-  "Source 6": getSource6,
-  "Source 7": getSource7,
-  "Source 8": getSource8,
-  "Source 9": getSource9,
-  "Source 10": getSource10,
-  "Source 11": getSource11,
-  "Source 12": getSource12,
-  "Source 13": getSource13,
-  "Source 14": getSource14,
-  "Source 15": getSource15,
-  "Source 16": getSource16,
-  "Source 17": getSource17,
-};
-
 const ACCENT = "#e30613";
 const FONT = "'Inter', system-ui, -apple-system, sans-serif";
 
@@ -278,6 +193,17 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 };
 
+// ─── GET BY ID HELPER (exactly as you showed) ───────────────────────────────
+async function getNewsById(appId: string, entity: string, recordId: string) {
+  const base44 = createClient({
+    appId,
+    headers: {
+      Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}`,
+    },
+  });
+  return await base44.entities[entity].get(recordId);
+}
+
 export default function Home() {
   const [news, setNews] = useState<any[]>([]);
   const [selectedNews, setSelectedNews] = useState<any | null>(null);
@@ -298,11 +224,22 @@ export default function Home() {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [lastWeatherUpdate, setLastWeatherUpdate] = useState<Date | null>(null);
 
+  // ─── URL ID STATE ──────────────────────────────────────────────────────────
+  const [urlId, setUrlId] = useState<string | null>(null);
+
   // Load saved dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("liveupdate_dark_mode");
     if (saved !== null) {
       setIsDarkMode(saved === "true");
+    }
+  }, []);
+
+  // Read ?id= from URL on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setUrlId(params.get("id"));
     }
   }, []);
 
@@ -377,6 +314,60 @@ export default function Home() {
     }
     fetchAllNews();
   }, []);
+
+  // ─── If URL has ?id=xxx → select that news (or try get by ID) ─────────────
+  useEffect(() => {
+    if (!urlId || news.length === 0 || selectedNews) return;
+
+    const found = news.find(
+      (n) => String(n.id || n._id || "") === String(urlId)
+    );
+
+    if (found) {
+      setSelectedNews(found);
+      return;
+    }
+
+    // Not in list → try get() from every source (same pattern you showed)
+    (async () => {
+      for (const source of BASE44_SOURCES) {
+        try {
+          const record = await getNewsById(source.appId, source.entity, urlId);
+          if (record) {
+            setSelectedNews({
+              ...record,
+              _source: source.label,
+              _entity: source.entity,
+              _appId: source.appId,
+            });
+            return;
+          }
+        } catch {
+          // ignore – try next source
+        }
+      }
+    })();
+  }, [urlId, news, selectedNews]);
+
+  // ─── Select / Clear helpers that also update the URL ───────────────────────
+  const selectNews = (item: any) => {
+    setSelectedNews(item);
+    const id = item.id || item._id;
+    if (id && typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("id", String(id));
+      window.history.pushState({}, "", url.toString());
+    }
+  };
+
+  const clearNews = () => {
+    setSelectedNews(null);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("id");
+      window.history.pushState({}, "", url.toString());
+    }
+  };
 
   // ─── LIVE WEATHER FETCH (Open-Meteo - Free, No API Key) ────────────────────
   const fetchWeather = async (city: typeof WEATHER_CITIES[0]) => {
@@ -541,27 +532,6 @@ export default function Home() {
     return "india";
   };
 
-  // ─── OPTIONAL: refresh a single article by ID when opening detail ──────────
-  // (calls the get-by-id API you provided – does not change list behaviour)
-  const openNewsDetail = async (item: any) => {
-    setSelectedNews(item); // keep existing behaviour immediately
-    if (item?.id && item?._source && GET_BY_SOURCE[item._source]) {
-      try {
-        const fresh = await GET_BY_SOURCE[item._source](item.id);
-        if (fresh) {
-          setSelectedNews({
-            ...fresh,
-            _source: item._source,
-            _entity: item._entity,
-            _appId: item._appId,
-          });
-        }
-      } catch (err) {
-        console.warn("get by id failed, using list data:", err);
-      }
-    }
-  };
-
   const filteredNews = news.filter((item) => {
     const matchesCategory = activeCategory === "all" || getCategoryKey(item) === activeCategory;
     const matchesSearch =
@@ -660,7 +630,7 @@ export default function Home() {
                   radius="md"
                   size="sm"
                   leftSection={<IconChevronLeft size={16} />}
-                  onClick={() => setSelectedNews(null)}
+                  onClick={clearNews}
                 >
                   {t("backHome")}
                 </Button>
@@ -740,7 +710,7 @@ export default function Home() {
                   {getFullDate(item)}
                 </Text>
               </Box>
-              <Button variant="filled" color="red" radius="md" onClick={() => setSelectedNews(null)}>
+              <Button variant="filled" color="red" radius="md" onClick={clearNews}>
                 {t("backAll")}
               </Button>
             </Group>
@@ -764,7 +734,7 @@ export default function Home() {
                       withBorder
                       bg={themeColors.cardBg}
                       style={{ cursor: "pointer", borderColor: themeColors.cardBorder }}
-                      onClick={() => openNewsDetail(n)}
+                      onClick={() => selectNews(n)}
                     >
                       <Group wrap="nowrap" gap="sm">
                         <Image src={getImage(n)} w={72} h={72} radius={8} fit="cover" />
@@ -997,7 +967,7 @@ export default function Home() {
                       height: "100%",
                       minHeight: 380,
                     }}
-                    onClick={() => openNewsDetail(featured)}
+                    onClick={() => selectNews(featured)}
                   >
                     <Image
                       src={getImage(featured)}
@@ -1065,7 +1035,7 @@ export default function Home() {
                       withBorder
                       bg={themeColors.cardBg}
                       style={{ cursor: "pointer", flex: 1, borderColor: themeColors.cardBorder }}
-                      onClick={() => openNewsDetail(item)}
+                      onClick={() => selectNews(item)}
                     >
                       <Group wrap="nowrap" gap="sm" align="flex-start">
                         <Image
@@ -1274,6 +1244,8 @@ export default function Home() {
                         display: "inline-flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
                       }}
                     >
                       <FaYoutube />
@@ -1312,7 +1284,7 @@ export default function Home() {
                     <Box
                       key={item.id || i}
                       style={{ cursor: "pointer" }}
-                      onClick={() => openNewsDetail(item)}
+                      onClick={() => selectNews(item)}
                     >
                       <Group wrap="nowrap" gap="sm" align="flex-start">
                         <Text
@@ -1403,7 +1375,7 @@ export default function Home() {
                 </Anchor>
               </Group>
               {section.items[0] ? (
-                <Box style={{ cursor: "pointer" }} onClick={() => openNewsDetail(section.items[0])}>
+                <Box style={{ cursor: "pointer" }} onClick={() => selectNews(section.items[0])}>
                   <Image
                     src={getImage(section.items[0])}
                     h={140}
@@ -1462,7 +1434,7 @@ export default function Home() {
                   overflow: "hidden",
                   transition: "transform 0.2s, box-shadow 0.2s",
                 }}
-                onClick={() => openNewsDetail(item)}
+                onClick={() => selectNews(item)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-4px)";
                   e.currentTarget.style.boxShadow = isDarkMode
