@@ -1261,7 +1261,7 @@ export default function Home() {
                   </Text>
                   <br />
                  <a
-                      href="buymeacoffee.com/srk016361w"
+                      href="https://buymeacoffee.com/srk016361w"
                       rel="noopener noreferrer"
                       aria-label="Subscribe on YouTube"
                       style={{
