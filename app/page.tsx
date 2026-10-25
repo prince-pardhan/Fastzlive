@@ -46,6 +46,7 @@ import { RiTwitterXLine } from "react-icons/ri";
 import { FaYoutube } from "react-icons/fa";
 import { RiSlideshow3Fill } from "react-icons/ri";
 import { FaBloggerB } from "react-icons/fa";
+import { BsPinterest } from "react-icons/bs";
 
 import { createClient } from "@base44/sdk";
 
@@ -1296,6 +1297,24 @@ export default function Home() {
                       
                     >
 <FaBloggerB />
+
+                    </a>
+                 <a
+                      href="https://in.pinterest.com/Fastzlive/_profile/"
+                      rel="noopener noreferrer"
+                      aria-label="Subscribe on YouTube"
+                      style={{
+                        color: "#ff0000",
+                        fontSize: "28px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                      }}
+                      
+                    >
+<BsPinterest />
 
                     </a>
                 </Group>
