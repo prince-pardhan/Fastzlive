@@ -45,6 +45,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { RiTwitterXLine } from "react-icons/ri";
 import { FaYoutube } from "react-icons/fa";
 import { RiSlideshow3Fill } from "react-icons/ri";
+import { FaBloggerB } from "react-icons/fa";
 
 import { createClient } from "@base44/sdk";
 
@@ -1275,6 +1276,26 @@ export default function Home() {
                       }}
                     >
                      <RiSlideshow3Fill />
+
+                    </a>
+                    <br />  
+                    
+                 <a
+                      href="https://fastzlive.blogspot.com/"
+                      rel="noopener noreferrer"
+                      aria-label="Subscribe on YouTube"
+                      style={{
+                        color: "#1aff00",
+                        fontSize: "28px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                      }}
+                      
+                    >
+<FaBloggerB />
 
                     </a>
                 </Group>
