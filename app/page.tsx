@@ -1190,135 +1190,190 @@ export default function Home() {
               </Paper>
 
               {/* Social Links Card */}
-              <Paper
-                p="md"
-                radius="md"
-                withBorder
-                bg={themeColors.cardBg}
-                style={{ borderColor: themeColors.cardBorder }}
-              >
-                <Group justify="space-between" mb={4}>
-                  <Group gap={6}>
-                    <Text fw={900} size="sm" color={themeColors.textPrimary}>
-                      Fastzlive.com
-                    </Text>
-                    <br />
-                    <a
-                      href="https://chat.whatsapp.com/IMG3IepRZXyGLxYeG9QXKH?s=cl&p=a&mlu=4&ilr=4"
-                      rel="noopener noreferrer"
-                      aria-label="Join WhatsApp Group"
-                      style={{
-                        color: "#25D366",
-                        fontSize: "28px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaWhatsapp />
-                    </a>
-                    <br />
-                    <a
-                      href="https://x.com/LiveUpdate_"
-                      rel="noopener noreferrer"
-                      aria-label="Follow on X"
-                      style={{
-                        color: isDarkMode ? "#fefdfd" : "#0f172a",
-                        fontSize: "24px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <RiTwitterXLine />
-                    </a>
-                    <br />
-                    <a
-                      href="https://www.youtube.com/@Fastzlive"
-                      rel="noopener noreferrer"
-                      aria-label="Subscribe on YouTube"
-                      style={{
-                        color: "#FF0000",
-                        fontSize: "28px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FaYoutube />
-                    </a>
-                    <br />
-                    <br />
-                  </Group>
-                </Group>
-                <Group align="flex-end" gap={4}>
-                  <Text fw={900} style={{ fontSize: 22, lineHeight: 1 }} c={themeColors.textPrimary}>
-                    Ramesh kumar
-                  </Text>
-                  <br />
-                 <a
-                      href="https://buymeacoffee.com/srk016361w"
-                      rel="noopener noreferrer"
-                      aria-label="Subscribe on YouTube"
-                      style={{
-                        color: "#ffc400",
-                        fontSize: "28px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                     <RiSlideshow3Fill />
+              ```tsx
+```tsx
+<Paper
+  p="md"
+  radius="md"
+  withBorder
+  bg={themeColors.cardBg}
+  style={{ borderColor: themeColors.cardBorder }}
+>
+  {/* Fastzlive Section */}
+  <Text
+    fw={900}
+    size="lg"
+    c={themeColors.textPrimary}
+    mb="md"
+  >
+    Fastzlive.com
+  </Text>
 
-                    </a>
-                    <br />  
-                    
-                 <a
-                      href="https://fastzlive.blogspot.com/"
-                      rel="noopener noreferrer"
-                      aria-label="Subscribe on YouTube"
-                      style={{
-                        color: "#1aff00",
-                        fontSize: "28px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                      
-                    >
-<FaBloggerB />
+  <Group gap="lg" align="flex-start" mb="xl" wrap="wrap">
+    {/* WhatsApp */}
+    <a
+      href="https://chat.whatsapp.com/IMG3IepRZXyGLxYeG9QXKH?s=cl&p=a&mlu=4&ilr=4"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Join WhatsApp Group"
+      style={{
+        color: "#25D366",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <FaWhatsapp size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        WhatsApp
+      </Text>
+    </a>
 
-                    </a>
-                 <a
-                      href="https://in.pinterest.com/Fastzlive/_profile/"
-                      rel="noopener noreferrer"
-                      aria-label="Subscribe on YouTube"
-                      style={{
-                        color: "#ff0000",
-                        fontSize: "28px",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        cursor: "pointer",
-                      }}
-                      
-                    >
-<BsPinterest />
+    {/* X */}
+    <a
+      href="https://x.com/LiveUpdate_"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Follow on X"
+      style={{
+        color: isDarkMode ? "#fefdfd" : "#0f172a",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <RiTwitterXLine size={26} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        X (Twitter)
+      </Text>
+    </a>
 
-                    </a>
-                </Group>
-              </Paper>
+    {/* YouTube */}
+    <a
+      href="https://www.youtube.com/@Fastzlive"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Subscribe on YouTube"
+      style={{
+        color: "#FF0000",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <FaYoutube size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        YouTube
+      </Text>
+    </a>
+  </Group>
+
+  <Divider
+    color={themeColors.cardBorder}
+    mb="md"
+  />
+
+  {/* Ramesh Kumar Section */}
+  <Text
+    fw={900}
+    style={{ fontSize: 22 }}
+    c={themeColors.textPrimary}
+    mb="md"
+  >
+    Ramesh Kumar
+  </Text>
+
+  <Group gap="lg" align="flex-start" wrap="wrap">
+    {/* Buy Me a Coffee */}
+    <a
+      href="https://buymeacoffee.com/srk016361w"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Support on Buy Me a Coffee"
+      style={{
+        color: "#ffc400",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "75px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <RiSlideshow3Fill size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        Support
+      </Text>
+    </a>
+
+    {/* Blogger */}
+    <a
+      href="https://fastzlive.blogspot.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Visit Fastzlive Blog"
+      style={{
+        color: "#1aff00",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <FaBloggerB size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        Blogger
+      </Text>
+    </a>
+
+    {/* Pinterest */}
+    <a
+      href="https://in.pinterest.com/Fastzlive/_profile/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Follow on Pinterest"
+      style={{
+        color: "#E60023",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <BsPinterest size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        Pinterest
+      </Text>
+    </a>
+  </Group>
+</Paper>
+
+
 
               {/* Top News */}
               <Paper
