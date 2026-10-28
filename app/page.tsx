@@ -1190,8 +1190,7 @@ export default function Home() {
               </Paper>
 
               {/* Social Links Card */}
-              ```tsx
-```tsx
+
 <Paper
   p="md"
   radius="md"
