@@ -25,6 +25,7 @@ import {
   Paper,
   Menu,
   Select,
+  Pagination,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -229,6 +230,10 @@ export default function Home() {
 
   // ─── URL ID STATE ──────────────────────────────────────────────────────────
   const [urlId, setUrlId] = useState<string | null>(null);
+
+  // ─── PAGINATION STATE ──────────────────────────────────────────────────────
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
 
   // Load saved dark mode preference
   useEffect(() => {
@@ -543,6 +548,17 @@ export default function Home() {
       getDesc(item).toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  // Reset to page 1 when category or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
+  const paginatedNews = filteredNews.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const featured = filteredNews[0];
   const sideNews = filteredNews.slice(1, 5);
@@ -1530,7 +1546,7 @@ export default function Home() {
             {t("allNews")}
           </Title>
           <SimpleGrid cols={{ base: 1, xs: 2, md: 3, lg: 4 }} spacing="lg">
-            {filteredNews.map((item, idx) => (
+            {paginatedNews.map((item, idx) => (
               <Card
                 key={item.id || idx}
                 padding={0}
@@ -1579,6 +1595,36 @@ export default function Home() {
               </Card>
             ))}
           </SimpleGrid>
+
+          {/* ═══════ PAGINATION ═══════ */}
+          {filteredNews.length > 0 && (
+            <Group justify="center" mt="xl" mb="md">
+              <Pagination
+                total={totalPages}
+                value={currentPage}
+                onChange={setCurrentPage}
+                color="red"
+                size="md"
+                radius="md"
+                withEdges
+                siblings={1}
+                boundaries={1}
+                styles={{
+                  control: {
+                    backgroundColor: isDarkMode ? themeColors.cardBg : undefined,
+                    borderColor: themeColors.cardBorder,
+                    color: themeColors.textPrimary,
+                    "&[data-active]": {
+                      backgroundColor: ACCENT,
+                      borderColor: ACCENT,
+                      color: "#fff",
+                    },
+                  },
+                }}
+              />
+            </Group>
+          )}
+
           {filteredNews.length === 0 && (
             <Center py={60}>
               <Text c={themeColors.textSecondary}>{t("noNews")}</Text>
