@@ -195,7 +195,7 @@ export const metadata: Metadata = {
       "Read the latest breaking news, India news, world news, politics, business, technology, sports and local updates on Fastzlive.",
     images: [
       {
-        url: "/fast.png",
+        url: "/fastz.png",
         width: 512,
         height: 512,
         alt: "Fastzlive News",
@@ -208,13 +208,13 @@ export const metadata: Metadata = {
     title: "Fastzlive - Breaking News & Live Updates",
     description:
       "Get the latest breaking news and live updates from India and around the world with Fastzlive.",
-    images: ["/fast.png"],
+    images: ["/fastz.png"],
   },
 
   icons: {
-    icon: "/fast.png",
-    shortcut: "/fast.png",
-    apple: "/fast.png",
+    icon: "/fastz.png",
+    shortcut: "/fastz.png",
+    apple: "/fastz.png",
   },
 
   category: "news",
