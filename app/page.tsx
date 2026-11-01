@@ -45,9 +45,11 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import { RiTwitterXLine } from "react-icons/ri";
 import { FaYoutube } from "react-icons/fa";
+import { FaSquareFacebook } from "react-icons/fa6";
 import { RiSlideshow3Fill } from "react-icons/ri";
 import { FaBloggerB } from "react-icons/fa";
 import { BsPinterest } from "react-icons/bs";
+import { FaFacebookF } from "react-icons/fa";
 
 import { createClient } from "@base44/sdk";
 
@@ -1402,6 +1404,28 @@ export default function Home() {
         YouTube
       </Text>
     </a>
+    <a
+      href="https://www.facebook.com/share/19DnvapDcU/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Subscribe on YouTube"
+      style={{
+        color: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <FaSquareFacebook  size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        Facebook 2
+      </Text>
+    </a>
   </Group>
 
   <Divider
@@ -1489,6 +1513,28 @@ export default function Home() {
       <BsPinterest size={28} />
       <Text size="xs" c={themeColors.textPrimary}>
         Pinterest
+      </Text>
+    </a>
+    <a
+      href="https://www.facebook.com/share/19eNsgpE4H/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Follow on Facebook"
+      style={{
+        color: "#0421fb",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "7px",
+        minWidth: "65px",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      <FaFacebookF  size={28} />
+      <Text size="xs" c={themeColors.textPrimary}>
+        Facebook
       </Text>
     </a>
   </Group>
