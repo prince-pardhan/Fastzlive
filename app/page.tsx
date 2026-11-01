@@ -467,12 +467,119 @@ export default function Home() {
     return UI_TRANSLATIONS[selectedLang]?.[key] || UI_TRANSLATIONS.en[key] || key;
   };
 
+  // Real image URL or null (no fallback image)
   const getImage = (item: any) =>
-    item.image ||
-    item.image_url ||
-    item.cover_image ||
-    item.thumbnail ||
-    "https://images.unsplash.com/photo-1504711434869-e1ff66873b80?w=800&h=500&fit=crop";
+    item.image || item.image_url || item.cover_image || item.thumbnail || null;
+
+  // Nice gradient colors based on first letter
+  const letterColors = [
+    ["#e30613", "#9b0000"], // red
+    ["#2563eb", "#1e3a8a"], // blue
+    ["#059669", "#064e3b"], // green
+    ["#d97706", "#92400e"], // orange
+    ["#7c3aed", "#4c1d95"], // purple
+    ["#db2777", "#9d174d"], // pink
+    ["#0891b2", "#155e75"], // cyan
+    ["#4f46e5", "#312e81"], // indigo
+  ];
+
+  const getLetterStyle = (title: string) => {
+    const letter = (title || "N").trim().charAt(0).toUpperCase() || "N";
+    const idx = letter.charCodeAt(0) % letterColors.length;
+    const [from, to] = letterColors[idx];
+    return { letter, from, to };
+  };
+
+  // Reusable image / letter placeholder component
+  const NewsImage = ({
+    item,
+    h,
+    w,
+    radius = 0,
+    fit = "cover",
+    style = {},
+    className = "",
+  }: any) => {
+    const src = getImage(item);
+    const title = getTitle(item);
+    const { letter, from, to } = getLetterStyle(title);
+
+    if (src) {
+      return (
+        <Image
+          src={src}
+          alt={title}
+          h={h}
+          w={w}
+          radius={radius}
+          fit={fit}
+          style={style}
+          className={className}
+        />
+      );
+    }
+
+    // Interesting letter placeholder (gradient + first letter of title)
+    return (
+      <Box
+        h={h}
+        w={w}
+        style={{
+          borderRadius: typeof radius === "number" ? radius : (radius || 8),
+          background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          overflow: "hidden",
+          flexShrink: 0,
+          width: w ? undefined : "100%",
+          ...style,
+        }}
+        className={className}
+      >
+        {/* subtle light pattern */}
+        <Box
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22) 0%, transparent 55%), radial-gradient(circle at 75% 75%, rgba(0,0,0,0.18) 0%, transparent 50%)",
+            pointerEvents: "none",
+          }}
+        />
+        {/* decorative circle */}
+        <Box
+          style={{
+            position: "absolute",
+            width: "140%",
+            height: "140%",
+            borderRadius: "50%",
+            border: "1px solid rgba(255,255,255,0.12)",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
+          }}
+        />
+        <Text
+          style={{
+            fontSize: typeof h === "number" ? Math.min(Math.max(h * 0.42, 18), 80) : "clamp(1.8rem, 7vw, 4.2rem)",
+            fontWeight: 900,
+            color: "rgba(255,255,255,0.97)",
+            textShadow: "0 6px 24px rgba(0,0,0,0.4)",
+            letterSpacing: "-0.03em",
+            lineHeight: 1,
+            zIndex: 1,
+            userSelect: "none",
+            fontFamily: "Georgia, serif",
+          }}
+        >
+          {letter}
+        </Text>
+      </Box>
+    );
+  };
 
   const getTitle = (item: any) => {
     const raw = item.title || item.name || item.headline || "Untitled";
@@ -694,9 +801,8 @@ export default function Home() {
               boxShadow: "0 12px 40px rgba(0,0,0,0.2)",
             }}
           >
-            <Image
-              src={getImage(item)}
-              alt={getTitle(item)}
+            <NewsImage
+              item={item}
               h={{ base: 240, sm: 380, md: 460 }}
               fit="cover"
             />
@@ -756,7 +862,7 @@ export default function Home() {
                       onClick={() => selectNews(n)}
                     >
                       <Group wrap="nowrap" gap="sm">
-                        <Image src={getImage(n)} w={72} h={72} radius={8} fit="cover" />
+                        <NewsImage item={n} w={72} h={72} radius={8} fit="cover" />
                         <Box>
                           <Text size="sm" fw={600} lineClamp={2} c={themeColors.textPrimary}>
                             {getTitle(n)}
@@ -988,8 +1094,8 @@ export default function Home() {
                     }}
                     onClick={() => selectNews(featured)}
                   >
-                    <Image
-                      src={getImage(featured)}
+                    <NewsImage
+                      item={featured}
                       h="100%"
                       fit="cover"
                       style={{ position: "absolute", inset: 0 }}
@@ -1057,8 +1163,8 @@ export default function Home() {
                       onClick={() => selectNews(item)}
                     >
                       <Group wrap="nowrap" gap="sm" align="flex-start">
-                        <Image
-                          src={getImage(item)}
+                        <NewsImage
+                          item={item}
                           w={80}
                           h={64}
                           radius={8}
@@ -1501,12 +1607,12 @@ export default function Home() {
               </Group>
               {section.items[0] ? (
                 <Box style={{ cursor: "pointer" }} onClick={() => selectNews(section.items[0])}>
-                  <Image
-                    src={getImage(section.items[0])}
+                  <NewsImage
+                    item={section.items[0]}
                     h={140}
                     radius={8}
                     fit="cover"
-                    mb="sm"
+                    style={{ marginBottom: 12 }}
                   />
                   <Text size="sm" fw={600} lineClamp={2} mb={6} c={themeColors.textPrimary}>
                     {getTitle(section.items[0])}
@@ -1572,7 +1678,7 @@ export default function Home() {
                 }}
               >
                 <Card.Section>
-                  <Image src={getImage(item)} h={160} fit="cover" />
+                  <NewsImage item={item} h={160} fit="cover" />
                 </Card.Section>
                 <Box p="md">
                   <Group gap={6} mb={8}>
