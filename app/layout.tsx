@@ -212,9 +212,9 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/fastz.png",
-    shortcut: "/fastz.png",
-    apple: "/fastz.png",
+    icon: "/logo.jpeg",
+    shortcut: "/logo.jpeg",
+    apple: "/logo.jpeg",
   },
 
   category: "news",

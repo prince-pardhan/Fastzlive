@@ -830,6 +830,60 @@ export default function Home() {
     </Group>
   );
 
+  // CEO block: public/ceo.jpeg + naam (sirf read more / detail page me)
+  const CeoBadge = ({ compact = false }: { compact?: boolean }) => {
+    const size = compact ? 30 : 56;
+    return (
+      <Group
+        gap={compact ? 8 : 14}
+        wrap="nowrap"
+        mt={compact ? 8 : 0}
+        p={compact ? 0 : "md"}
+        style={
+          compact
+            ? undefined
+            : { border: `1px solid ${c.border}`, borderRadius: 12, background: c.card }
+        }
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/ceo.jpeg"
+          alt="Rahul Swami"
+          style={{
+            width: 110,
+            height: 110,
+            borderRadius: "70%",
+            objectFit: "cover",
+            flexShrink: 0,
+            border: `0px solid ${ACCENT}`,
+          }}
+        />
+        <Box style={{ minWidth: 0 }}>
+         <Text
+  size={compact ? "2xl" : "xl"}
+  fw={900}
+  c={c.text}
+  style={{ lineHeight: 1.2 }}
+>
+  Rahul Swami (CEO)
+</Text>
+          <br />
+          <Text
+  size="sm"
+  c={c.sub}
+  style={{ lineHeight: 1.6 }}
+>
+  Chief Executive Officer (CEO) – Fastzlive
+
+  Rahul Swami leads Fastzlive with a vision to deliver fast, accurate, and reliable news through modern digital journalism and technology.
+
+  Vision: Making Fastzlive a trusted digital news brand.
+</Text>
+        </Box>
+      </Group>
+    );
+  };
+
   const Header = ({ detail }: { detail?: boolean }) => (
     <Box
       component="header"
@@ -1138,6 +1192,11 @@ export default function Home() {
                 {p}
               </Text>
             ))}
+          </Box>
+
+          {/* CEO — news ke neeche (sirf read more me) */}
+          <Box my="lg">
+            <CeoBadge />
           </Box>
 
           {origin && (
