@@ -10,7 +10,6 @@ import {
   Badge,
   Stack,
   SimpleGrid,
-  Anchor,
   Divider,
   TextInput,
   ActionIcon,
@@ -32,6 +31,8 @@ import {
   IconMoon,
   IconCloud,
   IconChevronLeft,
+  IconChevronRight,
+  IconChevronDown,
   IconLanguage,
   IconMapPin,
   IconWind,
@@ -42,6 +43,26 @@ import {
   IconExternalLink,
   IconTrendingUp,
   IconCalendar,
+  IconMenu2,
+  IconHome,
+  IconFlag,
+  IconMap2,
+  IconWorld,
+  IconBuildingBank,
+  IconMovie,
+  IconBallFootball,
+  IconChartBar,
+  IconAlertTriangle,
+  IconCpu,
+  IconLeaf,
+  IconBolt,
+  IconFlame,
+  IconStar,
+  IconArrowRight,
+  IconMail,
+  IconSend,
+  IconEye,
+  IconX,
 } from "@tabler/icons-react";
 import { FaWhatsapp, FaYoutube, FaBloggerB, FaFacebookF } from "react-icons/fa";
 import { RiTwitterXLine, RiSlideshow3Fill } from "react-icons/ri";
@@ -75,25 +96,49 @@ const BASE44_SOURCES = [
 // Behtar: Next.js API route / server component se fetch karein.
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN";
 
-// ─── Design tokens ──────────────────────────────────────────────────────────
+// ─── Brand + Design tokens ──────────────────────────────────────────────────
+const BRAND_NAME = "Fastzlive";
 const ACCENT = "#e30613";
+const BLUE = "#1d5bd8";
+const NAVY = "#0b1220";
 const HEAD_FONT = "'Hind', 'Noto Sans Devanagari', system-ui, sans-serif";
 const BODY_FONT = "'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif";
-const HERO_COUNT = 4;
+const HERO_COUNT = 11; // 4 slider + 2 beech ke cards + 5 popular
 const ITEMS_PER_PAGE = 12;
 
-const CATEGORIES = [
-  { key: "all", label: "All News" },
-  { key: "india", label: "India" },
-  { key: "world", label: "World" },
-  { key: "politics", label: "Politics" },
-  { key: "business", label: "Business" },
-  { key: "technology", label: "Technology" },
-  { key: "sports", label: "Sports" },
-  { key: "entertainment", label: "Entertainment" },
-  { key: "education", label: "Education" },
-  { key: "health", label: "Health" },
+const NAV_ITEMS = [
+  { key: "all", Icon: IconHome, en: "Home", hi: "होम" },
+  { key: "india", Icon: IconFlag, en: "India", hi: "देश", caret: true },
+  { key: "state", Icon: IconMap2, en: "States", hi: "राज्य", caret: true },
+  { key: "world", Icon: IconWorld, en: "World", hi: "दुनिया", caret: true },
+  { key: "politics", Icon: IconBuildingBank, en: "Politics", hi: "राजनीति", caret: true },
+  { key: "entertainment", Icon: IconMovie, en: "Entertainment", hi: "मनोरंजन", caret: true },
+  { key: "sports", Icon: IconBallFootball, en: "Sports", hi: "खेल", caret: true },
+  { key: "business", Icon: IconChartBar, en: "Business", hi: "बिजनेस", caret: true },
+  { key: "crime", Icon: IconAlertTriangle, en: "Crime", hi: "क्राइम" },
+  { key: "technology", Icon: IconCpu, en: "Technology", hi: "टेक्नोलॉजी", caret: true },
+  { key: "lifestyle", Icon: IconLeaf, en: "Lifestyle", hi: "जीवनशैली" },
 ];
+
+const EXTRA_CATS = [
+  { key: "education", en: "Education", hi: "शिक्षा" },
+  { key: "health", en: "Health", hi: "स्वास्थ्य" },
+];
+
+const CAT_LABELS: Record<string, { en: string; hi: string }> = {
+  india: { en: "India", hi: "देश" },
+  state: { en: "State", hi: "राज्य" },
+  world: { en: "World", hi: "दुनिया" },
+  politics: { en: "Politics", hi: "राजनीति" },
+  business: { en: "Business", hi: "बिजनेस" },
+  technology: { en: "Technology", hi: "टेक्नोलॉजी" },
+  sports: { en: "Sports", hi: "खेल" },
+  entertainment: { en: "Entertainment", hi: "मनोरंजन" },
+  education: { en: "Education", hi: "शिक्षा" },
+  health: { en: "Health", hi: "स्वास्थ्य" },
+  crime: { en: "Crime", hi: "क्राइम" },
+  lifestyle: { en: "Lifestyle", hi: "जीवनशैली" },
+};
 
 const LANGUAGES = [
   { code: "en", label: "English", native: "English" },
@@ -110,22 +155,22 @@ const LANGUAGES = [
 ];
 
 const WEATHER_CITIES = [
-  { name: "Delhi", state: "दिल्ली", lat: 28.6139, lon: 77.209 },
-  { name: "Mumbai", state: "महाराष्ट्र", lat: 19.076, lon: 72.8777 },
-  { name: "Kolkata", state: "पश्चिम बंगाल", lat: 22.5726, lon: 88.3639 },
-  { name: "Chennai", state: "तमिलनाडु", lat: 13.0827, lon: 80.2707 },
-  { name: "Bengaluru", state: "कर्नाटक", lat: 12.9716, lon: 77.5946 },
-  { name: "Hyderabad", state: "तेलंगाना", lat: 17.385, lon: 78.4867 },
-  { name: "Ahmedabad", state: "गुजरात", lat: 23.0225, lon: 72.5714 },
-  { name: "Jaipur", state: "राजस्थान", lat: 26.9124, lon: 75.7873 },
-  { name: "Lucknow", state: "उत्तर प्रदेश", lat: 26.8467, lon: 80.9462 },
-  { name: "Chandigarh", state: "पंजाब/हरियाणा", lat: 30.7333, lon: 76.7794 },
-  { name: "Bhopal", state: "मध्य प्रदेश", lat: 23.2599, lon: 77.4126 },
-  { name: "Patna", state: "बिहार", lat: 25.5941, lon: 85.1376 },
-  { name: "Guwahati", state: "असम", lat: 26.1445, lon: 91.7362 },
-  { name: "Thiruvananthapuram", state: "केरल", lat: 8.5241, lon: 76.9366 },
-  { name: "Ranchi", state: "झारखंड", lat: 23.3441, lon: 85.3096 },
-  { name: "Raipur", state: "छत्तीसगढ़", lat: 21.2514, lon: 81.6296 },
+  { name: "Delhi", hi: "दिल्ली", state: "दिल्ली", lat: 28.6139, lon: 77.209 },
+  { name: "Mumbai", hi: "मुंबई", state: "महाराष्ट्र", lat: 19.076, lon: 72.8777 },
+  { name: "Kolkata", hi: "कोलकाता", state: "पश्चिम बंगाल", lat: 22.5726, lon: 88.3639 },
+  { name: "Chennai", hi: "चेन्नई", state: "तमिलनाडु", lat: 13.0827, lon: 80.2707 },
+  { name: "Bengaluru", hi: "बेंगलुरु", state: "कर्नाटक", lat: 12.9716, lon: 77.5946 },
+  { name: "Hyderabad", hi: "हैदराबाद", state: "तेलंगाना", lat: 17.385, lon: 78.4867 },
+  { name: "Ahmedabad", hi: "अहमदाबाद", state: "गुजरात", lat: 23.0225, lon: 72.5714 },
+  { name: "Jaipur", hi: "जयपुर", state: "राजस्थान", lat: 26.9124, lon: 75.7873 },
+  { name: "Lucknow", hi: "लखनऊ", state: "उत्तर प्रदेश", lat: 26.8467, lon: 80.9462 },
+  { name: "Chandigarh", hi: "चंडीगढ़", state: "पंजाब/हरियाणा", lat: 30.7333, lon: 76.7794 },
+  { name: "Bhopal", hi: "भोपाल", state: "मध्य प्रदेश", lat: 23.2599, lon: 77.4126 },
+  { name: "Patna", hi: "पटना", state: "बिहार", lat: 25.5941, lon: 85.1376 },
+  { name: "Guwahati", hi: "गुवाहाटी", state: "असम", lat: 26.1445, lon: 91.7362 },
+  { name: "Thiruvananthapuram", hi: "तिरुवनंतपुरम", state: "केरल", lat: 8.5241, lon: 76.9366 },
+  { name: "Ranchi", hi: "रांची", state: "झारखंड", lat: 23.3441, lon: 85.3096 },
+  { name: "Raipur", hi: "रायपुर", state: "छत्तीसगढ़", lat: 21.2514, lon: 81.6296 },
 ];
 
 const WEATHER_CODES: Record<number, { en: string; hi: string; icon: string }> = {
@@ -156,14 +201,24 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     loading: "Loading news from all sources...",
     searchPlaceholder: "Search news, topics, or keywords",
-    breaking: "Live",
+    breaking: "Breaking News",
     topNews: "Trending now",
+    popular: "Popular news",
+    morePopular: "More popular news",
     latest: "Latest news",
     noNews: "No news found. Try another category or search term.",
     backHome: "Back to home",
     moreNews: "Read next",
     publishedOn: "Published on",
     viewAll: "View all",
+    moreStories: "More stories",
+    readFull: "Read full story",
+    readMore: "Read more",
+    fullNews: "Full story",
+    topStory: "TOP STORY",
+    breakingChip: "Breaking",
+    countryWorld: "India & World",
+    entertainment: "Entertainment",
     weather: "Live weather",
     humidity: "Humidity",
     wind: "Wind",
@@ -178,22 +233,53 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     translatingArticle: "Translating full article...",
     follow: "Follow us",
     home: "Home",
+    menu: "Menu",
     india: "India",
     world: "World",
     business: "Business",
     sports: "Sports",
+    topA: "Today's latest news",
+    topB: "Trusted news",
+    topC: "Every story, for you",
+    
+    contact: "Contact us",
+    privacy: "Privacy policy",
+    epaper: "E-paper",
+    tagline1: "Fast news",
+    tagline2: "Accurate news",
+    tagline3: "First to know",
+    headline: "Latest news from India & the world",
+    headlineSub: "Stay updated every moment",
+    newsletter: "Subscribe to newsletter",
+    newsletterSub: "Get every morning's top news in your inbox",
+    emailPlaceholder: "Enter your email...",
+    subscribe: "Subscribe",
+    subscribed: "Thanks! You are subscribed.",
+    promo1: "A new way of news",
+    promo2: "Fast | Accurate | Trusted",
+    promo3: "Always with you",
   },
   hi: {
     loading: "सभी स्रोतों से समाचार लोड हो रहे हैं...",
     searchPlaceholder: "समाचार, विषय या कीवर्ड खोजें",
-    breaking: "लाइव",
+    breaking: "Breaking News",
     topNews: "अभी ट्रेंडिंग",
+    popular: "लोकप्रिय खबरें",
+    morePopular: "और लोकप्रिय खबरें",
     latest: "ताज़ा समाचार",
     noNews: "कोई समाचार नहीं मिला। दूसरी श्रेणी या शब्द आज़माएं।",
     backHome: "होम पर वापस",
     moreNews: "यह भी पढ़ें",
     publishedOn: "प्रकाशित",
     viewAll: "सभी देखें",
+    moreStories: "और खबरें",
+    readFull: "पूरा लेख पढ़ें",
+    readMore: "पूरा पढ़ें",
+    fullNews: "पूरी खबर",
+    topStory: "TOP STORY",
+    breakingChip: "ब्रेकिंग",
+    countryWorld: "देश-विदेश",
+    entertainment: "मनोरंजन",
     weather: "लाइव मौसम",
     humidity: "नमी",
     wind: "हवा",
@@ -208,10 +294,30 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     translatingArticle: "पूरा लेख अनुवाद हो रहा है...",
     follow: "हमें फॉलो करें",
     home: "होम",
+    menu: "Menu",
     india: "भारत",
     world: "विश्व",
     business: "व्यापार",
     sports: "खेल",
+    topA: "आज की ताज़ा खबरें",
+    topB: "विश्वसनीय खबरें",
+    topC: "हर खबर आप तक",
+   
+    privacy: "प्राइवेसी पॉलिसी",
+    epaper: "ई-पेपर",
+    tagline1: "तेज़ खबरें",
+    tagline2: "सही खबरें",
+    tagline3: "सबसे पहले",
+    headline: "देश-दुनिया की ताज़ा खबरें",
+    headlineSub: "अब हर पल रहें अपडेट",
+    newsletter: "न्यूजलेटर सब्सक्राइब करें",
+    newsletterSub: "हर सुबह की ताज़ा खबरें अपने ईमेल पर पाएं",
+    emailPlaceholder: "अपना ईमेल दर्ज करें...",
+    subscribe: "सब्सक्राइब करें",
+    subscribed: "धन्यवाद! आप सब्सक्राइब हो गए हैं।",
+    promo1: "खबरों का नया अंदाज़",
+    promo2: "तेज़ | सटीक | भरोसेमंद",
+    promo3: "हमेशा आपके साथ",
   },
 };
 
@@ -263,20 +369,29 @@ const getItemDate = (item: any): Date => {
 
 const getCategoryKey = (item: any) => {
   const cat = (item.category || item.badge || item.tag || "").toString().toLowerCase();
-  if (cat.includes("politic")) return "politics";
-  if (cat.includes("world") || cat.includes("international")) return "world";
-  if (cat.includes("business") || cat.includes("economy") || cat.includes("sensex")) return "business";
-  if (cat.includes("tech") || cat.includes("6g") || /\bai\b/.test(cat)) return "technology";
-  if (cat.includes("sport") || cat.includes("cricket")) return "sports";
-  if (cat.includes("entertain") || cat.includes("bollywood")) return "entertainment";
-  if (cat.includes("education")) return "education";
-  if (cat.includes("health")) return "health";
+  if (cat.includes("politic") || cat.includes("राजनीति")) return "politics";
+  if (cat.includes("world") || cat.includes("international") || cat.includes("दुनिया") || cat.includes("विश्व")) return "world";
+  if (cat.includes("business") || cat.includes("economy") || cat.includes("sensex") || cat.includes("बिजनेस") || cat.includes("व्यापार")) return "business";
+  if (cat.includes("tech") || cat.includes("6g") || /\bai\b/.test(cat) || cat.includes("टेक")) return "technology";
+  if (cat.includes("sport") || cat.includes("cricket") || cat.includes("खेल") || cat.includes("क्रिकेट")) return "sports";
+  if (cat.includes("entertain") || cat.includes("bollywood") || cat.includes("मनोरंजन") || cat.includes("बॉलीवुड")) return "entertainment";
+  if (cat.includes("education") || cat.includes("शिक्षा")) return "education";
+  if (cat.includes("health") || cat.includes("स्वास्थ्य")) return "health";
+  if (cat.includes("crime") || cat.includes("क्राइम") || cat.includes("अपराध")) return "crime";
+  if (cat.includes("life") || cat.includes("जीवनशैली")) return "lifestyle";
+  if (cat.includes("state") || cat.includes("राज्य")) return "state";
   return "india";
 };
 
 const getBadge = (item: any) => {
   const raw = (item.category || item.badge || item.tag || item.type || "News").toString().trim();
   return raw.charAt(0).toUpperCase() + raw.slice(1);
+};
+
+const getViews = (item: any): string | null => {
+  const v = Number(item.views ?? item.view_count ?? item.views_count);
+  if (!v || isNaN(v)) return null;
+  return v >= 1000 ? (v / 1000).toFixed(1).replace(/\.0$/, "") + "K" : String(v);
 };
 
 // text ko chhote tukdon me todta hai (translate API ki limit ke liye)
@@ -449,7 +564,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLang, setSelectedLang] = useState("en");
+  const [showSearch, setShowSearch] = useState(false);
+  // Default Hindi (image ke hisaab se). English chahiye to "en" kar dein.
+  const [selectedLang, setSelectedLang] = useState("hi");
   const [translatedCache, setTranslatedCache] = useState<Record<string, { title: string; desc: string }>>({});
   const [bodyCache, setBodyCache] = useState<Record<string, string>>({});
   const [translating, setTranslating] = useState(false);
@@ -458,7 +575,7 @@ export default function Home() {
 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
-  const [selectedCity, setSelectedCity] = useState(WEATHER_CITIES[0]);
+  const [selectedCity, setSelectedCity] = useState(WEATHER_CITIES.find((x) => x.name === "Jaipur") || WEATHER_CITIES[0]);
   const [weatherData, setWeatherData] = useState<any>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [lastWeatherUpdate, setLastWeatherUpdate] = useState<Date | null>(null);
@@ -467,11 +584,15 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [heroIdx, setHeroIdx] = useState(0);
+  const [now, setNow] = useState<Date | null>(null);
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
 
   // ─── Theme ────────────────────────────────────────────────────────────────
   const c = {
-    bg: isDarkMode ? "#0b1018" : "#f2f4f8",
+    bg: isDarkMode ? "#0b1018" : "#f3f4f7",
     card: isDarkMode ? "#141b27" : "#ffffff",
     border: isDarkMode ? "#243044" : "#e3e8ef",
     header: isDarkMode ? "#0f1520" : "#ffffff",
@@ -480,11 +601,12 @@ export default function Home() {
     input: isDarkMode ? "#1a2332" : "#eef1f6",
     ink: isDarkMode ? "#05080d" : "#0b1220",
     readText: isDarkMode ? "#d5deea" : "#1f2937",
+    navy: NAVY,
   };
 
   const t = (key: string) => UI_TRANSLATIONS[selectedLang]?.[key] || UI_TRANSLATIONS.en[key] || key;
 
-  // ─── Init: theme + url ────────────────────────────────────────────────────
+  // ─── Init: theme + url + clock ────────────────────────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem("liveupdate_dark_mode");
     if (saved !== null) setIsDarkMode(saved === "true");
@@ -495,6 +617,12 @@ export default function Home() {
     setColorScheme(isDarkMode ? "dark" : "light");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDarkMode]);
+
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const read = () => {
@@ -595,6 +723,13 @@ export default function Home() {
     window.history.pushState({}, "", url.toString());
   };
 
+  const goCategory = (key: string) => {
+    if (selectedNews) clearNews();
+    setActiveCategory(key);
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // reading progress (detail view)
   useEffect(() => {
     if (!selectedNews) {
@@ -654,8 +789,9 @@ export default function Home() {
     return bodyCache[getUid(item) + "_" + selectedLang] || raw;
   };
 
+  const dateLocale = selectedLang === "hi" ? "hi-IN" : "en-GB";
   const fmtDate = (item: any, long = false) =>
-    getItemDate(item).toLocaleDateString("en-GB", { day: "numeric", month: long ? "long" : "short", year: "numeric" });
+    getItemDate(item).toLocaleDateString(dateLocale, { day: "2-digit", month: long ? "long" : "long", year: "numeric" });
 
   const getTimeAgo = (item: any) => {
     const mins = Math.floor((Date.now() - getItemDate(item).getTime()) / 60000);
@@ -669,6 +805,14 @@ export default function Home() {
 
   const readMinutes = (item: any) => Math.max(1, Math.round(getRawBody(item).split(/\s+/).length / 200));
 
+  const badgeText = (item: any) => {
+    const raw = getBadge(item);
+    if (selectedLang === "hi" && /^[\u0000-\u007F]*$/.test(raw)) return CAT_LABELS[getCategoryKey(item)]?.hi || raw;
+    return raw;
+  };
+
+  const cityLabel = (city: (typeof WEATHER_CITIES)[0]) => (selectedLang === "hi" ? `${city.hi}, ${city.state}` : city.name);
+
   // ─── Derived lists ────────────────────────────────────────────────────────
   const q = searchQuery.trim().toLowerCase();
   const filteredNews = news.filter((item) => {
@@ -680,26 +824,40 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentPage(1);
+    setHeroIdx(0);
   }, [activeCategory, searchQuery]);
 
-  const heroItems = filteredNews.slice(0, HERO_COUNT);
-  const feedItems = filteredNews.slice(HERO_COUNT);
+  const base = filteredNews;
+  const carousel = base.slice(0, 4);
+  const midItems = base.slice(4, 6);
+  const popularRaw = base.slice(6, 11);
+  const popularItems = popularRaw.length ? popularRaw : news.slice(0, 5);
+  const feedItems = base.slice(HERO_COUNT);
   const totalPages = Math.max(1, Math.ceil(feedItems.length / ITEMS_PER_PAGE));
   const pageItems = feedItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const showHero = currentPage === 1 && heroItems.length > 0;
-  const showHighlights = activeCategory === "all" && !q && currentPage === 1;
-  const trending = news.slice(0, 6);
+  const heroItem = carousel.length ? carousel[heroIdx % carousel.length] : null;
+  const showMain = currentPage === 1 && !!heroItem;
+  const showSections = activeCategory === "all" && !q && currentPage === 1;
+  const deshItems = news.filter((n) => ["india", "world"].includes(getCategoryKey(n))).slice(0, 4);
+  const entItems = news.filter((n) => getCategoryKey(n) === "entertainment").slice(0, 2);
   const tickerItems = news.slice(0, 10);
+  const trending = news.slice(0, 6);
 
-  const highlightSections = [
-    { key: "india", title: t("india") },
-    { key: "world", title: t("world") },
-    { key: "business", title: t("business") },
-    { key: "sports", title: t("sports") },
-  ].map((s) => ({ ...s, items: news.filter((n) => getCategoryKey(n) === s.key).slice(0, 3) }));
+  // hero auto slide
+  useEffect(() => {
+    if (carousel.length < 2) return;
+    const id = setInterval(() => setHeroIdx((i) => i + 1), 6000);
+    return () => clearInterval(id);
+  }, [carousel.length]);
 
   // jo items screen par dikhte hain, unhi ko translate karo
-  const visibleIds = [...(showHero ? heroItems : []), ...pageItems, ...trending, ...highlightSections.flatMap((s) => s.items)]
+  const visibleIds = [
+    ...(showMain ? [...carousel, ...midItems, ...popularItems] : []),
+    ...(showSections ? [...deshItems, ...entItems] : []),
+    ...pageItems,
+    ...tickerItems,
+    ...trending,
+  ]
     .map(getUid)
     .join("|");
 
@@ -786,7 +944,7 @@ export default function Home() {
 
   // ─── Global CSS ───────────────────────────────────────────────────────────
   const globalCss = `
-    @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap');
     .fz-root { font-family: ${BODY_FONT}; }
     .fz-head { font-family: ${HEAD_FONT}; }
     .fz-click { cursor: pointer; }
@@ -797,26 +955,38 @@ export default function Home() {
     .fz-ticker:hover { animation-play-state: paused; }
     @keyframes fz-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     @keyframes fz-pulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
-    .fz-live { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: fz-pulse 1.4s ease-in-out infinite; }
     .fz-row { display: flex; gap: 16px; }
     .fz-row-img { width: 240px; }
     @media (max-width: 640px) {
       .fz-row { flex-direction: column; gap: 10px; }
       .fz-row-img { width: 100%; }
     }
-    .fz-hero-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
-    @media (max-width: 900px) { .fz-hero-grid { grid-template-columns: 1fr; } }
+    .fz-slant { clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+    .fz-slant-r { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 100%, 0 100%); }
+    .fz-banner { clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%); }
+    .fz-main { display: grid; grid-template-columns: 2fr 1fr 0.85fr; gap: 14px; align-items: start; }
+    .fz-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    @media (max-width: 1200px) {
+      .fz-main { grid-template-columns: 1.5fr 1fr; }
+      .fz-col3 { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 800px) {
+      .fz-main { grid-template-columns: 1fr; }
+      .fz-col3 { grid-template-columns: 1fr; }
+    }
     .fz-pg .mantine-Pagination-control { background: ${c.card}; border-color: ${c.border}; color: ${c.text}; }
     .fz-pg .mantine-Pagination-control[data-active] { background: ${ACCENT}; border-color: ${ACCENT}; color: #fff; }
     .fz-nav::-webkit-scrollbar { display: none; }
     .fz-nav { scrollbar-width: none; }
+    .fz-navitem { transition: background .15s; }
+    .fz-navitem:hover { background: rgba(255,255,255,.12); }
     @media (prefers-reduced-motion: reduce) {
-      .fz-ticker, .fz-live { animation: none; }
+      .fz-ticker { animation: none; }
     }
   `;
 
-  // ─── Reusable blocks ──────────────────────────────────────────────────────
-  const MetaLine = ({ item }: { item: any }) => (
+  // ─── Small render helpers (functions, taaki input focus na tute) ──────────
+  const metaLine = (item: any) => (
     <Group gap={10} wrap="wrap">
       <Text size="xs" c={c.sub}>
         {fmtDate(item)}
@@ -884,72 +1054,264 @@ export default function Home() {
     );
   };
 
-  const Header = ({ detail }: { detail?: boolean }) => (
-    <Box
-      component="header"
+  // Section header (red slanted tab + line + "और खबरें")
+  const sectionHeader = (Icon: any, title: string, onMore?: () => void) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+      <div
+        className="fz-slant"
+        style={{
+          background: ACCENT,
+          color: "#fff",
+          padding: "8px 34px 8px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontFamily: HEAD_FONT,
+          fontWeight: 700,
+          fontSize: 20,
+        }}
+      >
+        <Icon size={22} /> {title}
+      </div>
+      <div style={{ flex: 1, height: 1, background: c.border }} />
+      {onMore && (
+        <UnstyledButton onClick={onMore} style={{ color: c.text, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+          {t("moreStories")} <IconArrowRight size={15} color={ACCENT} />
+        </UnstyledButton>
+      )}
+    </div>
+  );
+
+  const redPill = (label: string, style?: CSSProperties) => (
+    <span
       style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: c.header,
-        borderBottom: `1px solid ${c.border}`,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        background: ACCENT,
+        color: "#fff",
+        borderRadius: 999,
+        padding: "6px 16px",
+        fontSize: 13,
+        fontWeight: 700,
+        ...style,
       }}
     >
-      <Container size="xl" py={10}>
-        <Group justify="space-between" wrap="nowrap" gap="md">
-          <UnstyledButton onClick={detail ? clearNews : () => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ flexShrink: 0 }}>
-            <Group gap={8} wrap="nowrap">
+      {label} <IconArrowRight size={14} />
+    </span>
+  );
+
+  // ─── Top utility bar ──────────────────────────────────────────────────────
+  const renderTopBar = () => {
+    const sep = <span style={{ opacity: 0.35 }}>|</span>;
+    const timeStr = now ? now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }).toUpperCase() : "";
+    const dateStr = now ? now.toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" }) : "";
+    const social = [
+      { href: SOCIAL_GROUPS[0].links[3].href, Icon: FaFacebookF, color: "#5b9bff", label: "Facebook" },
+      { href: SOCIAL_GROUPS[0].links[1].href, Icon: RiTwitterXLine, color: "#ffffff", label: "X" },
+      { href: SOCIAL_GROUPS[0].links[2].href, Icon: FaYoutube, color: "#ff3b3b", label: "YouTube" },
+      { href: SOCIAL_GROUPS[0].links[0].href, Icon: FaWhatsapp, color: "#25D366", label: "WhatsApp" },
+    ];
+    return (
+      <Box bg={c.navy} c="white" style={{ fontSize: 12.5, fontWeight: 500 }}>
+        <Container size={1500} px="md" py={7}>
+          <Group justify="space-between" wrap="nowrap" gap="lg">
+            <Group gap={12} wrap="nowrap" visibleFrom="lg" style={{ whiteSpace: "nowrap" }}>
+              <span>{t("topA")}</span>
+              {sep}
+              <span>{t("topB")}</span>
+              {sep}
+              <span>{t("topC")}</span>
+            </Group>
+
+            <Group gap={20} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
+              <Menu shadow="md" width={230} position="bottom-start">
+                <Menu.Target>
+                  <UnstyledButton style={{ color: "#fff", display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, fontWeight: 600 }}>
+                    <span style={{ fontSize: 16 }}>{weatherData ? getWeatherIcon(weatherData.weather_code) : "🌡️"}</span>
+                    <span>{weatherData ? `${Math.round(weatherData.temperature_2m)}°C` : "--"}</span>
+                    <span>{cityLabel(selectedCity)}</span>
+                  </UnstyledButton>
+                </Menu.Target>
+                <Menu.Dropdown style={{ maxHeight: 320, overflowY: "auto" }}>
+                  {WEATHER_CITIES.map((x) => (
+                    <Menu.Item
+                      key={x.name}
+                      onClick={() => setSelectedCity(x)}
+                      style={{ fontWeight: selectedCity.name === x.name ? 700 : 400, color: selectedCity.name === x.name ? ACCENT : undefined }}
+                    >
+                      {selectedLang === "hi" ? `${x.hi} (${x.state})` : x.name}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
+              <Group gap={6} wrap="nowrap" visibleFrom="xs">
+                <IconCalendar size={15} />
+                <span>{dateStr}</span>
+              </Group>
+              <Group gap={6} wrap="nowrap" visibleFrom="sm">
+                <IconClock size={15} />
+                <span>{timeStr}</span>
+              </Group>
+            </Group>
+
+            <Group gap={8} wrap="nowrap" visibleFrom="md">
+              {social.map(({ href, Icon, color, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  style={{ color, display: "flex", alignItems: "center", justifyContent: "center", width: 22, height: 22 }}
+                >
+                  <Icon size={15} />
+                </a>
+              ))}
+            </Group>
+
+           
+          </Group>
+        </Container>
+      </Box>
+    );
+  };
+
+  // ─── Logo header ──────────────────────────────────────────────────────────
+  const renderLogoHeader = () => (
+    <Box bg={c.header} style={{ position: "relative", overflow: "hidden" }}>
+      <Container size={1500} px="md" py={14}>
+        <Group justify="space-between" wrap="nowrap" gap="lg">
+          <UnstyledButton onClick={() => goCategory("all")} style={{ flexShrink: 0 }}>
+            <Group gap={12} wrap="nowrap">
               <Box
                 style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
+                  width: 60,
+                  height: 60,
+                  borderRadius: "50%",
                   background: ACCENT,
                   color: "#fff",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontFamily: HEAD_FONT,
-                  fontWeight: 700,
-                  fontSize: 20,
+                  boxShadow: "0 0 0 3px #fff, 0 0 0 5px " + ACCENT,
                 }}
               >
-                F
+                <IconWorld size={38} stroke={1.6} />
               </Box>
-              <Text className="fz-head" fw={700} style={{ fontSize: 24, color: c.text, letterSpacing: -0.5, lineHeight: 1 }}>
-                Fastz<span style={{ color: ACCENT }}>live</span>
-              </Text>
+              <Box>
+                <div
+                  className="fz-head"
+                  style={{ fontSize: "clamp(30px, 4.2vw, 50px)", fontWeight: 800, letterSpacing: -2, lineHeight: 1, color: c.text }}
+                >
+                  Fastz<span style={{ color: ACCENT }}>live</span>
+                </div>
+                <div className="fz-head" style={{ fontSize: 14, fontWeight: 600, color: c.text, marginTop: 6, whiteSpace: "nowrap" }}>
+                  {t("tagline1")} <span style={{ opacity: 0.4, margin: "0 6px" }}>|</span> {t("tagline2")}{" "}
+                  <span style={{ opacity: 0.4, margin: "0 6px" }}>|</span> {t("tagline3")}
+                </div>
+              </Box>
             </Group>
           </UnstyledButton>
 
-          {!detail && (
-            <TextInput
-              placeholder={t("searchPlaceholder")}
-              leftSection={<IconSearch size={16} color={c.sub} />}
-              radius="xl"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              visibleFrom="sm"
-              styles={{
-                root: { flex: 1, maxWidth: 460 },
-                input: { background: c.input, color: c.text, border: `1px solid ${c.border}` },
-              }}
-            />
-          )}
+          <Box visibleFrom="md" style={{ textAlign: "center", flex: 1 }}>
+            <div className="fz-head" style={{ fontSize: "clamp(22px, 2.4vw, 32px)", fontWeight: 800, color: c.text, lineHeight: 1.2 }}>
+              {t("headline")}
+            </div>
+            <div className="fz-head" style={{ fontSize: "clamp(15px, 1.5vw, 20px)", fontWeight: 600, color: c.text, marginTop: 2 }}>
+              {t("headlineSub")}
+            </div>
+            <svg width="300" height="10" viewBox="0 0 300 10" style={{ marginTop: 2 }}>
+              <path d="M2 8 C 90 2, 210 2, 298 7" stroke={ACCENT} strokeWidth="3" fill="none" strokeLinecap="round" />
+            </svg>
+          </Box>
 
-          <Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+          <Box
+            visibleFrom="lg"
+            className="fz-banner"
+            style={{
+              flexShrink: 0,
+              width: 360,
+              height: 86,
+              background: "linear-gradient(105deg, #e30613 0%, #9d000c 100%)",
+              color: "#fff",
+              padding: "10px 24px 10px 70px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              borderRadius: 8,
+            }}
+          >
+            <div style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700, fontSize: 25, lineHeight: 1.1, fontStyle: "italic" }}>
+              Fastest News
+            </div>
+            <div style={{ fontFamily: "'Dancing Script', cursive", fontWeight: 700, fontSize: 25, lineHeight: 1.1, fontStyle: "italic", paddingLeft: 26 }}>
+              Live Updates
+            </div>
+          </Box>
+        </Group>
+      </Container>
+    </Box>
+  );
+
+  // ─── Nav bar ──────────────────────────────────────────────────────────────
+  const renderNav = () => (
+    <Box bg={c.header} pb={10}>
+      <Container size={1500} px="md">
+        <div style={{ background: "#0a0a0a", borderRadius: 8, display: "flex", alignItems: "stretch", overflow: "hidden" }}>
+          <Menu shadow="md" width={220} position="bottom-start">
+            <Menu.Target>
+              <UnstyledButton
+                className="fz-navitem"
+                style={{ color: "#fff", padding: "0 18px", display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 15, flexShrink: 0 }}
+              >
+                <IconMenu2 size={20} /> {t("menu")}
+              </UnstyledButton>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {[...NAV_ITEMS.filter((n) => n.key !== "all"), ...EXTRA_CATS].map((cat: any) => (
+                <Menu.Item key={cat.key} onClick={() => goCategory(cat.key)}>
+                  {selectedLang === "hi" ? cat.hi : cat.en}
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+
+          <div className="fz-nav" style={{ display: "flex", flex: 1, overflowX: "auto", minWidth: 0 }}>
+            {NAV_ITEMS.map(({ key, Icon, en, hi, caret }) => {
+              const active = activeCategory === key && !selectedNews;
+              return (
+                <UnstyledButton
+                  key={key}
+                  onClick={() => goCategory(key)}
+                  className="fz-navitem"
+                  style={{
+                    padding: "13px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 15,
+                    whiteSpace: "nowrap",
+                    background: active ? ACCENT : "transparent",
+                    fontFamily: HEAD_FONT,
+                  }}
+                >
+                  <Icon size={19} />
+                  {selectedLang === "hi" ? hi : en}
+                  {caret && <IconChevronDown size={13} style={{ opacity: 0.8 }} />}
+                </UnstyledButton>
+              );
+            })}
+          </div>
+
+          <Group gap={4} wrap="nowrap" px={10} style={{ flexShrink: 0 }}>
             <Menu shadow="md" width={210} position="bottom-end">
               <Menu.Target>
-                <Button
-                  variant="light"
-                  color="red"
-                  radius="xl"
-                  size="sm"
-                  leftSection={<IconLanguage size={16} />}
-                  loading={translating || bodyTranslating}
-                >
-                  {LANGUAGES.find((l) => l.code === selectedLang)?.native || "English"}
-                </Button>
+                <ActionIcon variant="subtle" color="gray" size="lg" aria-label="Language" loading={translating || bodyTranslating}>
+                  <IconLanguage size={20} color="#fff" />
+                </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
                 {LANGUAGES.map((lang) => (
@@ -966,43 +1328,41 @@ export default function Home() {
                 ))}
               </Menu.Dropdown>
             </Menu>
-
             <ActionIcon
-              variant="default"
+              variant="subtle"
               size="lg"
-              radius="xl"
               onClick={toggleDarkMode}
               aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {isDarkMode ? <IconSun size={18} color="#f59e0b" /> : <IconMoon size={18} color="#475569" />}
+              {isDarkMode ? <IconSun size={20} color="#f59e0b" /> : <IconMoon size={20} color="#fff" />}
+            </ActionIcon>
+            <ActionIcon variant="subtle" size="lg" onClick={() => setShowSearch((s) => !s)} aria-label="Search">
+              {showSearch ? <IconX size={20} color="#fff" /> : <IconSearch size={20} color="#fff" />}
             </ActionIcon>
           </Group>
-        </Group>
+        </div>
 
-        {!detail && (
+        {showSearch && (
           <TextInput
             mt={10}
+            autoFocus
             placeholder={t("searchPlaceholder")}
             leftSection={<IconSearch size={16} color={c.sub} />}
             radius="xl"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            hiddenFrom="sm"
+            onChange={(e) => {
+              setSearchQuery(e.currentTarget.value);
+              if (selectedNews) clearNews();
+            }}
             styles={{ input: { background: c.input, color: c.text, border: `1px solid ${c.border}` } }}
           />
         )}
       </Container>
-
-      {detail && (
-        <div style={{ height: 3, background: "transparent" }}>
-          <div style={{ height: "100%", width: `${progress}%`, background: ACCENT, transition: "width .1s linear" }} />
-        </div>
-      )}
     </Box>
   );
 
   const ShareRow = () => {
-    const text = encodeURIComponent(selectedNews ? getTitle(selectedNews) : "Fastzlive");
+    const text = encodeURIComponent(selectedNews ? getTitle(selectedNews) : BRAND_NAME);
     const url = encodeURIComponent(shareUrl());
     const btn: CSSProperties = {
       display: "inline-flex",
@@ -1117,7 +1477,12 @@ export default function Home() {
     return (
       <Box className="fz-root" bg={c.bg} style={{ minHeight: "100vh" }}>
         <style>{globalCss}</style>
-        <Header detail />
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 300 }}>
+          <div style={{ height: "100%", width: `${progress}%`, background: ACCENT, transition: "width .1s linear" }} />
+        </div>
+        {renderTopBar()}
+        {renderLogoHeader()}
+        {renderNav()}
 
         <Container size={780} py={{ base: 24, md: 44 }}>
           <Button
@@ -1134,7 +1499,7 @@ export default function Home() {
 
           <Group gap="sm" mb="md" wrap="wrap">
             <Badge color="red" size="lg" radius="sm" variant="filled" tt="none">
-              {getBadge(item)}
+              {badgeText(item)}
             </Badge>
             <Group gap={6} wrap="nowrap">
               <IconCalendar size={15} color={c.sub} />
@@ -1257,228 +1622,514 @@ export default function Home() {
   }
 
   // ═══════════════════════ HOME VIEW ═════════════════════════════════════════
-  const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  // Hero (slider)
+  const renderHero = () => {
+    if (!heroItem) return null;
+    const stop = (fn: () => void) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      fn();
+    };
+    return (
+      <article
+        {...clickable(heroItem)}
+        className="fz-click"
+        style={{ position: "relative", borderRadius: 10, overflow: "hidden", minHeight: 450, background: c.ink }}
+      >
+        <NewsImage
+          src={getImageSrc(heroItem)}
+          title={getRawTitle(heroItem)}
+          h="100%"
+          letterSize="clamp(5rem, 16vw, 10rem)"
+          style={{ position: "absolute", inset: 0 }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to top, rgba(5,8,13,0.96) 0%, rgba(5,8,13,0.6) 42%, rgba(5,8,13,0.05) 80%)",
+          }}
+        />
+        <div style={{ position: "absolute", top: 14, left: 16 }}>
+          <span
+            className="fz-head"
+            style={{ background: ACCENT, color: "#fff", padding: "5px 14px", borderRadius: 4, fontWeight: 700, fontSize: 16 }}
+          >
+            {badgeText(heroItem)}
+          </span>
+        </div>
+        <div style={{ position: "absolute", top: 14, right: 16 }}>
+          <span
+            style={{
+              background: "rgba(10,14,24,0.85)",
+              color: "#fff",
+              padding: "6px 12px",
+              borderRadius: 999,
+              fontWeight: 700,
+              fontSize: 12,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <IconStar size={15} color="#f59e0b" fill="#f59e0b" /> {t("topStory")}
+          </span>
+        </div>
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "22px 24px 18px", color: "#fff" }}>
+          <h2
+            className="fz-head fz-hl"
+            style={{
+              fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
+              fontWeight: 800,
+              lineHeight: 1.22,
+              margin: "0 0 10px",
+              color: "#fff",
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {getTitle(heroItem)}
+          </h2>
+          <Text size="sm" c="gray.2" lineClamp={3} mb={12} className="fz-head" style={{ maxWidth: "64ch", fontSize: 16, lineHeight: 1.5 }}>
+            {getExcerpt(heroItem)}
+          </Text>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              {redPill(t("readFull"), { marginBottom: 12 })}
+              <div style={{ display: "flex", gap: 18, fontSize: 12.5, color: "#d6dde8", alignItems: "center" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <IconCalendar size={14} /> {fmtDate(heroItem)}
+                </span>
+                <span>{heroItem._source || BRAND_NAME}</span>
+              </div>
+            </div>
+            {carousel.length > 1 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {carousel.map((_, i) => (
+                  <span
+                    key={i}
+                    onClick={stop(() => setHeroIdx(i))}
+                    style={{
+                      width: i === heroIdx % carousel.length ? 24 : 9,
+                      height: 8,
+                      borderRadius: 999,
+                      background: i === heroIdx % carousel.length ? ACCENT : "rgba(255,255,255,.7)",
+                      cursor: "pointer",
+                      transition: "width .2s",
+                    }}
+                  />
+                ))}
+                <button
+                  type="button"
+                  aria-label="Previous"
+                  onClick={stop(() => setHeroIdx((i) => (i - 1 + carousel.length * 100) % (carousel.length * 100)))}
+                  style={arrowBtn}
+                >
+                  <IconChevronLeft size={16} />
+                </button>
+                <button type="button" aria-label="Next" onClick={stop(() => setHeroIdx((i) => i + 1))} style={arrowBtn}>
+                  <IconChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </article>
+    );
+  };
+
+  // Beech wale cards
+  const renderMidCard = (item: any, breaking: boolean) => (
+    <Paper key={getUid(item)} {...clickable(item)} className="fz-click" p={8} radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+      <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ width: 130, flexShrink: 0 }}>
+          <div style={{ position: "relative" }}>
+            <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} ratio={breaking ? "3 / 4" : "1 / 1"} radius={4} letterSize={44} />
+            <span
+              className="fz-head"
+              style={{ position: "absolute", top: 0, left: 0, background: ACCENT, color: "#fff", fontSize: 12.5, fontWeight: 700, padding: "3px 10px" }}
+            >
+              {badgeText(item)}
+            </span>
+          </div>
+          <div style={{ fontSize: 11.5, color: c.sub, marginTop: 8, display: "flex", alignItems: "center", gap: 5 }}>
+            <IconCalendar size={13} /> {fmtDate(item)}
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          {breaking && (
+            <span
+              style={{
+                alignSelf: "flex-start",
+                background: ACCENT,
+                color: "#fff",
+                fontSize: 12,
+                fontWeight: 700,
+                padding: "3px 10px",
+                borderRadius: 4,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                marginBottom: 8,
+              }}
+            >
+              <IconBolt size={13} fill="#fff" /> {t("breakingChip")}
+            </span>
+          )}
+          <h3
+            className="fz-head fz-hl"
+            style={{
+              fontSize: 19,
+              fontWeight: 800,
+              lineHeight: 1.3,
+              margin: "0 0 8px",
+              color: c.text,
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {getTitle(item)}
+          </h3>
+          <Text size="xs" c={c.sub} lineClamp={breaking ? 5 : 2} style={{ lineHeight: 1.6 }}>
+            {getExcerpt(item)}
+          </Text>
+          <div style={{ marginTop: "auto", paddingTop: 10 }}>{redPill(t("readMore"), { padding: "5px 18px" })}</div>
+        </div>
+      </div>
+    </Paper>
+  );
+
+  // Popular list
+  const renderPopular = () => (
+    <Paper radius="md" withBorder bg={c.card} style={{ borderColor: c.border, overflow: "hidden" }}>
+      <div
+        className="fz-slant-r"
+        style={{
+          background: ACCENT,
+          color: "#fff",
+          padding: "9px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontFamily: HEAD_FONT,
+          fontWeight: 700,
+          fontSize: 20,
+        }}
+      >
+        <IconFlame size={22} fill="#fff" /> {t("popular")}
+      </div>
+      <div style={{ padding: "6px 10px 10px" }}>
+        {popularItems.map((item, i) => {
+          const views = getViews(item);
+          return (
+            <div key={getUid(item)}>
+              {i > 0 && <Divider color={c.border} />}
+              <div {...clickable(item)} className="fz-click" style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 0" }}>
+                <span
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: ACCENT,
+                    color: "#fff",
+                    fontWeight: 800,
+                    fontSize: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    boxShadow: `0 0 0 2px ${c.card}, 0 0 0 3px ${ACCENT}`,
+                  }}
+                >
+                  {i + 1}
+                </span>
+                <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} w={62} h={58} radius={4} letterSize={24} />
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div
+                    className="fz-head fz-hl"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      lineHeight: 1.3,
+                      color: c.text,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {getTitle(item)}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: c.sub, marginTop: 3, display: "flex", alignItems: "center", gap: 5 }}>
+                    {views ? (
+                      <>
+                        <IconEye size={13} /> {views}
+                      </>
+                    ) : (
+                      getTimeAgo(item)
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <UnstyledButton
+          onClick={() => feedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          style={{
+            width: "100%",
+            textAlign: "center",
+            background: c.input,
+            borderRadius: 999,
+            padding: "8px 0",
+            marginTop: 6,
+            fontWeight: 700,
+            fontSize: 13,
+            color: c.text,
+          }}
+        >
+          {t("morePopular")} →
+        </UnstyledButton>
+      </div>
+    </Paper>
+  );
+
+  // Newsletter
+  const renderNewsletter = () => (
+    <Paper p="md" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+      <Group gap={10} wrap="nowrap" mb={4}>
+        <IconMail size={34} color={ACCENT} stroke={1.6} />
+        <Text className="fz-head" fw={800} c={c.text} style={{ fontSize: 20, lineHeight: 1.2 }}>
+          {t("newsletter")}
+        </Text>
+      </Group>
+      <Text size="sm" c={c.sub} mb="sm" ta="center" className="fz-head">
+        {t("newsletterSub")}
+      </Text>
+      {subscribed ? (
+        <Text size="sm" fw={700} c="green" ta="center" py="sm">
+          {t("subscribed")}
+        </Text>
+      ) : (
+        <>
+          <TextInput
+            placeholder={t("emailPlaceholder")}
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            radius="sm"
+            mb={8}
+            styles={{ input: { background: c.input, color: c.text, borderColor: c.border } }}
+          />
+          {/* TODO: yahan apni API/Base44 entity se email save karwa lein */}
+          <Button
+            fullWidth
+            color="red"
+            radius="sm"
+            rightSection={<IconSend size={16} />}
+            onClick={() => {
+              if (/^\S+@\S+\.\S+$/.test(email)) setSubscribed(true);
+            }}
+          >
+            {t("subscribe")}
+          </Button>
+        </>
+      )}
+    </Paper>
+  );
+
+  // Promo banner
+  const renderPromo = () => (
+    <div
+      style={{
+        borderRadius: 6,
+        overflow: "hidden",
+        background: "linear-gradient(120deg, #1a0306 0%, #5c0610 50%, #b0000e 100%)",
+        color: "#fff",
+        textAlign: "center",
+        padding: "18px 14px 16px",
+        border: "1px solid rgba(255,255,255,.12)",
+      }}
+    >
+      <div className="fz-head" style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>
+        {t("promo1")}
+      </div>
+      <div className="fz-head" style={{ fontSize: 14, fontWeight: 600, margin: "4px 0 10px", opacity: 0.95 }}>
+        {t("promo2")}
+      </div>
+      <div className="fz-head" style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1.2, lineHeight: 1 }}>
+        <IconWorld size={26} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+        Fastz<span style={{ color: "#ff5560" }}>live</span>
+      </div>
+      <span
+        style={{
+          display: "inline-block",
+          marginTop: 10,
+          background: ACCENT,
+          borderRadius: 999,
+          padding: "3px 16px",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        {t("promo3")}
+      </span>
+    </div>
+  );
+
+  // Desh-videsh + manoranjan
+  const renderSectionCard = (item: any) => (
+    <Paper key={getUid(item)} {...clickable(item)} className="fz-click" p={6} radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+      <div style={{ position: "relative" }}>
+        <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} ratio="16 / 10" radius={4} letterSize={40} />
+        <span
+          className="fz-head"
+          style={{ position: "absolute", left: 0, bottom: 0, background: ACCENT, color: "#fff", fontSize: 12, fontWeight: 700, padding: "2px 10px" }}
+        >
+          {badgeText(item)}
+        </span>
+      </div>
+      <div
+        className="fz-head fz-hl"
+        style={{
+          fontSize: 16,
+          fontWeight: 700,
+          lineHeight: 1.35,
+          color: c.text,
+          margin: "8px 2px 6px",
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}
+      >
+        {getTitle(item)}
+      </div>
+      <div style={{ color: ACCENT, fontWeight: 700, fontSize: 13, margin: "0 2px 4px", display: "flex", alignItems: "center", gap: 4 }}>
+        {t("fullNews")} <IconArrowRight size={14} />
+      </div>
+    </Paper>
+  );
+
+  const today = now ? now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
 
   return (
     <Box className="fz-root" bg={c.bg} style={{ minHeight: "100vh" }}>
       <style>{globalCss}</style>
 
-      {/* Utility strip */}
-      <Box bg={c.ink} c="white">
-        <Container size="xl" py={6}>
-          <Group justify="space-between">
-            <Text size="xs" c="gray.4">
-              {today}
-            </Text>
-            <Text size="xs" c="gray.4" visibleFrom="xs">
-              Fastzlive.com
-            </Text>
-          </Group>
-        </Container>
-      </Box>
+      {renderTopBar()}
+      {renderLogoHeader()}
+      {renderNav()}
 
-      <Header />
-
-      {/* Category nav */}
-      <Box bg={c.header} style={{ borderBottom: `1px solid ${c.border}` }}>
-        <Container size="xl">
-          <div className="fz-nav" style={{ display: "flex", gap: 8, overflowX: "auto", padding: "10px 0" }}>
-            {CATEGORIES.map((cat) => {
-              const active = activeCategory === cat.key;
-              return (
-                <UnstyledButton
-                  key={cat.key}
-                  onClick={() => setActiveCategory(cat.key)}
-                  style={{
-                    padding: "7px 16px",
-                    borderRadius: 999,
-                    whiteSpace: "nowrap",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    background: active ? ACCENT : c.input,
-                    color: active ? "#fff" : c.text,
-                    transition: "background .15s",
-                  }}
-                >
-                  {cat.key === "all" ? t("home") : cat.label}
-                </UnstyledButton>
-              );
-            })}
-          </div>
-        </Container>
-      </Box>
-
-      {/* Live ticker */}
+      {/* Breaking ticker */}
       {tickerItems.length > 0 && (
-        <Box bg={c.ink} c="white" style={{ overflow: "hidden" }}>
-          <Container size="xl" p={0}>
-            <Group wrap="nowrap" gap={0}>
-              <Group
-                gap={8}
-                wrap="nowrap"
-                px="md"
-                py={9}
-                style={{ background: ACCENT, flexShrink: 0, position: "relative", zIndex: 2 }}
+        <Box bg={c.header} pb={12}>
+          <Container size={1500} px="md">
+            <div style={{ display: "flex", alignItems: "stretch", background: isDarkMode ? "#1a1015" : "#fff1f1", border: `1px solid ${c.border}`, borderRadius: 6, overflow: "hidden" }}>
+              <div
+                className="fz-slant"
+                style={{
+                  background: ACCENT,
+                  color: "#fff",
+                  padding: "9px 30px 9px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontWeight: 800,
+                  fontSize: 17,
+                  flexShrink: 0,
+                  position: "relative",
+                  zIndex: 2,
+                }}
               >
-                <span className="fz-live" />
-                <Text size="sm" fw={700} c="white">
-                  {t("breaking")}
-                </Text>
-              </Group>
-              <Box style={{ overflow: "hidden", flex: 1 }}>
+                <IconBolt size={20} fill="#fff" /> {t("breaking")}
+              </div>
+              <div style={{ overflow: "hidden", flex: 1, display: "flex", alignItems: "center" }}>
                 <div className="fz-ticker">
                   {[...tickerItems, ...tickerItems].map((n, i) => (
                     <UnstyledButton
                       key={getUid(n) + i}
                       onClick={() => selectNews(n)}
-                      style={{ padding: "9px 28px", whiteSpace: "nowrap", color: "#e2e8f0", fontSize: 14 }}
+                      className="fz-head"
+                      style={{ padding: "8px 24px", whiteSpace: "nowrap", color: c.text, fontSize: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 16 }}
                     >
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: ACCENT, flexShrink: 0 }} />
                       {getTitle(n)}
                     </UnstyledButton>
                   ))}
                 </div>
-              </Box>
-            </Group>
+              </div>
+              <UnstyledButton
+                onClick={() => feedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                style={{
+                  background: "#0a0a0a",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  padding: "0 16px",
+                  margin: 6,
+                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  flexShrink: 0,
+                }}
+              >
+                {t("moreStories")} <IconArrowRight size={15} />
+              </UnstyledButton>
+            </div>
           </Container>
         </Box>
       )}
 
-      <Container size="xl" py={{ base: 18, md: 28 }}>
-        <Grid >
-          {/* ═══ MAIN COLUMN ═══ */}
-          <Grid.Col span={{ base: 12, lg: 8 }}>
-            {/* Hero */}
-            {showHero && (
-              <div className="fz-hero-grid">
-                <article
-                  {...clickable(heroItems[0])}
-                  className="fz-click"
-                  style={{ position: "relative", borderRadius: 14, overflow: "hidden", minHeight: 400, background: c.ink }}
-                >
-                  <NewsImage
-                    src={getImageSrc(heroItems[0])}
-                    title={getRawTitle(heroItems[0])}
-                    h="100%"
-                    letterSize="clamp(5rem, 16vw, 10rem)"
-                    style={{ position: "absolute", inset: 0 }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "linear-gradient(to top, rgba(5,8,13,0.95) 0%, rgba(5,8,13,0.55) 45%, rgba(5,8,13,0) 80%)",
-                    }}
-                  />
-                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "22px 24px", color: "#fff" }}>
-                    <Badge color="red" radius="sm" mb={10} tt="none">
-                      {getBadge(heroItems[0])}
-                    </Badge>
-                    <h2
-                      className="fz-head fz-hl"
-                      style={{ fontSize: "clamp(1.4rem, 2.8vw, 2rem)", fontWeight: 700, lineHeight: 1.25, margin: "0 0 10px", color: "#fff" }}
-                    >
-                      {getTitle(heroItems[0])}
-                    </h2>
-                    <Text size="sm" c="gray.3" lineClamp={3} mb={10} style={{ maxWidth: "62ch" }}>
-                      {getExcerpt(heroItems[0])}
-                    </Text>
-                    <Text size="xs" c="gray.4">
-                      {fmtDate(heroItems[0])} · {getTimeAgo(heroItems[0])} · {readMinutes(heroItems[0])} {t("readTime")}
-                    </Text>
-                  </div>
-                </article>
+      <Container size={1500} px="md" py={{ base: 14, md: 20 }}>
+        {/* ═══ MAIN DESIGN GRID ═══ */}
+        {showMain && (
+          <div className="fz-main">
+            {/* Column 1: hero + desh-videsh */}
+            <div className="fz-col">
+              {renderHero()}
+              {showSections && deshItems.length > 0 && (
+                <Paper p="sm" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+                  {sectionHeader(IconWorld, t("countryWorld"), () => goCategory("india"))}
+                  <SimpleGrid cols={{ base: 2, sm: 4 }} spacing={8}>
+                    {deshItems.map(renderSectionCard)}
+                  </SimpleGrid>
+                </Paper>
+              )}
+            </div>
 
-                <Stack gap="sm">
-                  {heroItems.slice(1).map((item) => (
-                    <Paper
-                      key={getUid(item)}
-                      {...clickable(item)}
-                      className="fz-click"
-                      p="sm"
-                      radius="md"
-                      withBorder
-                      bg={c.card}
-                      style={{ borderColor: c.border, flex: 1 }}
-                    >
-                      <Group wrap="nowrap" gap="sm" align="flex-start">
-                        <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} w={92} h={76} radius={8} letterSize={32} />
-                        <Box style={{ minWidth: 0, flex: 1 }}>
-                          <Text size="xs" fw={700} c={ACCENT} mb={2}>
-                            {getBadge(item)}
-                          </Text>
-                          <Text className="fz-hl fz-head" fw={600} lineClamp={3} c={c.text} style={{ lineHeight: 1.3, fontSize: 16 }}>
-                            {getTitle(item)}
-                          </Text>
-                          <Text size="xs" c={c.sub} mt={4}>
-                            {getTimeAgo(item)}
-                          </Text>
-                        </Box>
-                      </Group>
-                    </Paper>
-                  ))}
-                </Stack>
+            {/* Column 2: 2 cards + manoranjan */}
+            <div className="fz-col">
+              {midItems.map((item, i) => renderMidCard(item, i === 0))}
+              {showSections && entItems.length > 0 && (
+                <Paper p="sm" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+                  {sectionHeader(IconMovie, t("entertainment"), () => goCategory("entertainment"))}
+                  <SimpleGrid cols={2} spacing={8}>
+                    {entItems.map(renderSectionCard)}
+                  </SimpleGrid>
+                </Paper>
+              )}
+            </div>
+
+            {/* Column 3: popular + newsletter + promo */}
+            <div className="fz-col fz-col3">
+              {renderPopular()}
+              <div className="fz-col">
+                {renderNewsletter()}
+                {renderPromo()}
               </div>
-            )}
+            </div>
+          </div>
+        )}
 
-            {/* Category highlights */}
-            {showHighlights && (
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" mt="lg">
-                {highlightSections.map((section) => (
-                  <Paper key={section.key} p="md" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
-                    <Group justify="space-between" mb="sm">
-                      <Text className="fz-head" fw={700} c={c.text} style={{ fontSize: 19 }}>
-                        {section.title}
-                      </Text>
-                      <Anchor
-                        size="sm"
-                        c={ACCENT}
-                        fw={600}
-                        component="button"
-                        type="button"
-                        onClick={() => setActiveCategory(section.key)}
-                      >
-                        {t("viewAll")}
-                      </Anchor>
-                    </Group>
-                    {section.items.length === 0 ? (
-                      <Text size="sm" c={c.sub}>
-                        —
-                      </Text>
-                    ) : (
-                      <Stack gap="sm">
-                        {section.items.map((item, i) => (
-                          <Box key={getUid(item)}>
-                            {i > 0 && <Divider mb="sm" color={c.border} />}
-                            <Group wrap="nowrap" gap="sm" align="flex-start" {...clickable(item)} className="fz-click">
-                              {i === 0 && (
-                                <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} w={84} h={68} radius={8} letterSize={30} />
-                              )}
-                              <Box style={{ minWidth: 0, flex: 1 }}>
-                                <Text
-                                  className="fz-hl"
-                                  fw={i === 0 ? 600 : 500}
-                                  lineClamp={3}
-                                  c={c.text}
-                                  style={{ lineHeight: 1.35, fontSize: i === 0 ? 15 : 14 }}
-                                >
-                                  {getTitle(item)}
-                                </Text>
-                                <Text size="xs" c={c.sub} mt={3}>
-                                  {getTimeAgo(item)}
-                                </Text>
-                              </Box>
-                            </Group>
-                          </Box>
-                        ))}
-                      </Stack>
-                    )}
-                  </Paper>
-                ))}
-              </SimpleGrid>
-            )}
-
-            {/* Feed */}
-            <Box mt={showHero ? 34 : 0} ref={feedRef}>
+        {/* ═══ FEED + SIDEBAR ═══ */}
+        <Grid mt={showMain ? 28 : 0}>
+          <Grid.Col span={{ base: 12, lg: 8 }}>
+            <Box ref={feedRef}>
               <Title order={2} className="fz-head" mb="md" c={c.text} style={{ fontSize: 28, fontWeight: 700 }}>
                 {t("latest")}
               </Title>
@@ -1499,7 +2150,7 @@ export default function Home() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <Group gap={8} mb={6}>
                             <Badge size="sm" variant="light" color="red" tt="none">
-                              {getBadge(item)}
+                              {badgeText(item)}
                             </Badge>
                             {item._source && (
                               <Text size="xs" c={c.sub}>
@@ -1516,7 +2167,7 @@ export default function Home() {
                           <Text size="sm" c={c.sub} lineClamp={3} mb={8} style={{ lineHeight: 1.6, maxWidth: "70ch" }}>
                             {getExcerpt(item)}
                           </Text>
-                          <MetaLine item={item} />
+                          {metaLine(item)}
                         </div>
                       </article>
                     </Box>
@@ -1673,13 +2324,13 @@ export default function Home() {
 
       {/* Footer */}
       <Box bg={c.ink} c="white" mt={30}>
-        <Container size="xl" py="lg">
+        <Container size={1500} px="md" py="lg">
           <Group justify="space-between" gap="md">
-            <Text className="fz-head" fw={700} style={{ fontSize: 20 }}>
+            <Text className="fz-head" fw={800} style={{ fontSize: 22, letterSpacing: -0.8 }}>
               Fastz<span style={{ color: ACCENT }}>live</span>
             </Text>
             <Text size="xs" c="gray.5">
-              © {new Date().getFullYear()} Fastzlive.com
+              {today} · © {new Date().getFullYear()} {BRAND_NAME}
             </Text>
           </Group>
         </Container>
@@ -1687,3 +2338,17 @@ export default function Home() {
     </Box>
   );
 }
+
+// Hero slider ke arrow buttons ka style
+const arrowBtn: CSSProperties = {
+  width: 30,
+  height: 30,
+  borderRadius: "50%",
+  border: "1.5px solid rgba(255,255,255,.85)",
+  background: "rgba(0,0,0,.25)",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+};
