@@ -1,4 +1,3 @@
-
 export interface NewsItem {
   slug: string;
   title: string;
@@ -6,7 +5,6 @@ export interface NewsItem {
 }
 
 export const news: NewsItem[] = [
-  
   {
     slug: "latest-india-politics-updates",
     title: "Latest India Politics Updates",
@@ -557,5 +555,4 @@ export const news: NewsItem[] = [
     title: "Weekly News Roundup",
     updatedAt: new Date(),
   },
-
 ];

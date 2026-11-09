@@ -68,6 +68,7 @@ import { FaWhatsapp, FaYoutube, FaBloggerB, FaFacebookF } from "react-icons/fa";
 import { RiTwitterXLine, RiSlideshow3Fill } from "react-icons/ri";
 import { FaSquareFacebook } from "react-icons/fa6";
 import { BsPinterest } from "react-icons/bs";
+import { SiRumble } from "react-icons/si";
 
 import { createClient } from "@base44/sdk";
 
@@ -541,6 +542,7 @@ const SOCIAL_GROUPS = [
       { label: "X (Twitter)", href: "https://x.com/LiveUpdate_", color: "#0f172a", darkColor: "#f8fafc", Icon: RiTwitterXLine },
       { label: "YouTube", href: "https://www.youtube.com/@Fastzlive", color: "#FF0000", Icon: FaYoutube },
       { label: "Facebook 2", href: "https://www.facebook.com/share/19DnvapDcU/", color: "#1877F2", Icon: FaSquareFacebook },
+      { label: "Rumble", href: "https://rumble.com/user/Fastzlive", color: "#FF0000", Icon: SiRumble  },
     ],
   },
   {

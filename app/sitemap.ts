@@ -1,18 +1,18 @@
-
 import type { MetadataRoute } from "next";
 import { news } from "@/data/news";
 
-const baseUrl = "https://www.fastzlive.com/";
-const sarch = "fastzlive";
+// Agar blogs alag data file mein hain to import kar lo
+// import { blogs } from "@/data/blogs";
 
+const baseUrl = "https://www.fastzlive.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // Main website pages
-
-    const paths = [
+  // ========== 1. All Static / Category Paths ==========
+  const paths = [
     "",
+    "/news",
     "/fastzlive",
     "/fastzlive/india",
     "/fastzlive/world",
@@ -94,10 +94,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/fastzlive/trending",
     "/fastzlive/photo-gallery",
     "/fastzlive/videos",
-    "/fastzlive/latest-news",
-    "/fastzlive/breaking-news",
     "/fastzlive/trending-news",
     "/fastzlive/popular-news",
+
+    // Extra useful pages
     "/photo-gallery",
     "/tourism",
     "/restaurants",
@@ -114,191 +114,68 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/advertise",
   ];
 
-  
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/news`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
+  // ========== 2. Static Routes with Priority ==========
+  const staticRoutes: MetadataRoute.Sitemap = paths.map((path) => {
+    const isHome = path === "";
+    const isNewsCategory =
+      path.startsWith("/news") ||
+      path.startsWith("/fastzlive/") ||
+      path.includes("breaking") ||
+      path.includes("latest") ||
+      path.includes("trending");
 
-    // News categories
-    {
-      url: `${baseUrl}/news/india`,
+    return {
+      url: `${baseUrl}${path}`,
       lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/news/world`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/haryana`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/rajasthan`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/politics`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/business`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/technology`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/sports`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/entertainment`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/education`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/crime`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/health`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/agriculture`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/news/weather`,
-      lastModified: now,
-      changeFrequency: "hourly",
-      priority: 0.8,
-    },
+      changeFrequency: isHome
+        ? "daily"
+        : isNewsCategory
+        ? "hourly"
+        : path.includes("policy") || path.includes("terms") || path.includes("disclaimer")
+        ? "yearly"
+        : "weekly",
+      priority: isHome
+        ? 1.0
+        : isNewsCategory
+        ? 0.9
+        : path === "/blogs" || path === "/tourism"
+        ? 0.7
+        : 0.5,
+    };
+  });
 
-    // Other website sections
-    {
-      url: `${baseUrl}/tourism`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/restaurants`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/schools`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/gyms`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/blogs`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-
-    // Important information pages
-    {
-      url: `${baseUrl}/about`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/privacy-policy`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/disclaimer`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-  ];
-
-  // Published news article pages
+  // ========== 3. News Articles ==========
   const newsUrls: MetadataRoute.Sitemap = news
     .filter((item) => item.slug)
     .map((item) => ({
       url: `${baseUrl}/news/${item.slug}`,
-      lastModified: item.updatedAt
-        ? new Date(item.updatedAt)
-        : now,
-      changeFrequency: "weekly",
+      lastModified: item.updatedAt ? new Date(item.updatedAt) : now,
+      changeFrequency: "weekly" as const,
       priority: 0.8,
     }));
 
-  // Remove duplicate URLs
-  const allUrls = [...staticRoutes, ...newsUrls];
+  // ========== 4. Blogs (agar blogs data available ho) ==========
+  // Agar aapke paas blogs array hai to yeh uncomment kar do
+  /*
+  const blogUrls: MetadataRoute.Sitemap = blogs
+    .filter((item) => item.slug)
+    .map((item) => ({
+      url: `${baseUrl}/blogs/${item.slug}`,
+      lastModified: item.updatedAt ? new Date(item.updatedAt) : now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+  */
+
+  // ========== 5. Combine + Remove Duplicates ==========
+  const allUrls = [
+    ...staticRoutes,
+    ...newsUrls,
+    // ...blogUrls,   // blogs enable karne ke liye uncomment karo
+  ];
 
   const uniqueUrls: MetadataRoute.Sitemap = Array.from(
-    new Map(
-      allUrls.map((item) => [item.url, item])
-    ).values()
+    new Map(allUrls.map((item) => [item.url, item])).values()
   );
 
   return uniqueUrls;
