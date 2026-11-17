@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   Divider,
   TextInput,
+  Textarea,
   ActionIcon,
   Loader,
   Center,
@@ -63,6 +64,8 @@ import {
   IconSend,
   IconEye,
   IconX,
+  IconMessageCircle,
+  IconHeart,
 } from "@tabler/icons-react";
 import { FaWhatsapp, FaYoutube, FaBloggerB, FaFacebookF } from "react-icons/fa";
 import { RiTwitterXLine, RiSlideshow3Fill } from "react-icons/ri";
@@ -96,6 +99,24 @@ const BASE44_SOURCES = [
 // ⚠️ Is token ko client code me mat rakhein (browser me sabko dikhta hai).
 // Behtar: Next.js API route / server component se fetch karein.
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN";
+
+// ─── Comments (lifetime save) ───────────────────────────────────────────────
+// Base44 me ek app banao, usme entity "Comment" (fields: news_uid, name, text)
+// aur uska appId yahan daalo. Entity ko public create/read allow karo.
+// appId set nahi hai to comments sirf us browser ke localStorage me save honge.
+const COMMENTS_SOURCE = { appId: "YOUR_COMMENTS_APP_ID", entity: "Comment" };
+const COMMENTS_REMOTE = COMMENTS_SOURCE.appId !== "YOUR_COMMENTS_APP_ID";
+const COMMENTS_LS_KEY = "fastzlive_comments_v1";
+const COMMENT_NAME_KEY = "fastzlive_comment_name";
+
+// ─── Likes (lifetime save) ──────────────────────────────────────────────────
+// Base44 app me entity "Like" banao (fields: news_uid, voter_id) aur uska appId yahan daalo.
+// Entity ko public create / read / delete allow karo (delete = unlike ke liye).
+// appId set nahi hai to likes sirf us browser ke localStorage me save honge.
+const LIKES_SOURCE = { appId: "YOUR_LIKES_APP_ID", entity: "Like" };
+const LIKES_REMOTE = LIKES_SOURCE.appId !== "YOUR_LIKES_APP_ID";
+const LIKES_LS_KEY = "fastzlive_likes_v1";
+const VOTER_ID_KEY = "fastzlive_voter_id";
 
 // ─── Brand + Design tokens ──────────────────────────────────────────────────
 const BRAND_NAME = "Fastzlive";
@@ -259,6 +280,15 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     promo1: "A new way of news",
     promo2: "Fast | Accurate | Trusted",
     promo3: "Always with you",
+    comments: "Comments",
+    commentName: "Your name",
+    commentPlaceholder: "Write your comment...",
+    postComment: "Post comment",
+    noComments: "No comments yet. Be the first to comment!",
+    commentsLoading: "Loading comments...",
+    like: "Like",
+    liked: "Liked",
+    likes: "Likes",
   },
   hi: {
     loading: "सभी स्रोतों से समाचार लोड हो रहे हैं...",
@@ -319,6 +349,15 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     promo1: "खबरों का नया अंदाज़",
     promo2: "तेज़ | सटीक | भरोसेमंद",
     promo3: "हमेशा आपके साथ",
+    comments: "कमेंट्स",
+    commentName: "आपका नाम",
+    commentPlaceholder: "अपना कमेंट लिखें...",
+    postComment: "कमेंट करें",
+    noComments: "अभी कोई कमेंट नहीं है। सबसे पहले कमेंट करें!",
+    commentsLoading: "कमेंट्स लोड हो रहे हैं...",
+    like: "लाइक",
+    liked: "पसंद किया",
+    likes: "लाइक्स",
   },
 };
 
@@ -451,6 +490,157 @@ async function getNewsById(appId: string, entity: string, recordId: string) {
     headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
   });
   return await base44.entities[entity].get(recordId);
+}
+
+// ─── Comments helpers ───────────────────────────────────────────────────────
+const commentTime = (cm: any): number => {
+  const d = new Date(cm?.created_date || cm?.createdAt || cm?.date || 0).getTime();
+  return isNaN(d) ? 0 : d;
+};
+
+function readLocalComments(): Record<string, any[]> {
+  try {
+    return JSON.parse(localStorage.getItem(COMMENTS_LS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+async function loadComments(newsUid: string): Promise<any[]> {
+  if (COMMENTS_REMOTE) {
+    try {
+      const base44 = createClient({
+        appId: COMMENTS_SOURCE.appId,
+        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      });
+      const records = await base44.entities[COMMENTS_SOURCE.entity].filter({ news_uid: newsUid });
+      if (Array.isArray(records)) return records.slice().sort((a, b) => commentTime(b) - commentTime(a));
+    } catch (e: any) {
+      console.warn("Failed to load comments:", e?.message);
+    }
+  }
+  return (readLocalComments()[newsUid] || []).slice().sort((a, b) => commentTime(b) - commentTime(a));
+}
+
+async function saveComment(newsUid: string, name: string, text: string): Promise<any> {
+  if (COMMENTS_REMOTE) {
+    try {
+      const base44 = createClient({
+        appId: COMMENTS_SOURCE.appId,
+        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      });
+      const rec = await base44.entities[COMMENTS_SOURCE.entity].create({ news_uid: newsUid, name, text });
+      return { created_date: new Date().toISOString(), ...rec, name, text };
+    } catch (e: any) {
+      console.warn("Failed to save comment remotely, saving locally:", e?.message);
+    }
+  }
+  const rec = {
+    id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    news_uid: newsUid,
+    name,
+    text,
+    created_date: new Date().toISOString(),
+  };
+  const all = readLocalComments();
+  all[newsUid] = [...(all[newsUid] || []), rec];
+  try {
+    localStorage.setItem(COMMENTS_LS_KEY, JSON.stringify(all));
+  } catch {
+    /* ignore */
+  }
+  return rec;
+}
+
+// ─── Likes helpers ──────────────────────────────────────────────────────────
+// Har browser ki ek anonymous voter id (ek browser se ek hi like count hota hai)
+function getVoterId(): string {
+  try {
+    let id = localStorage.getItem(VOTER_ID_KEY);
+    if (!id) {
+      id = `v_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(VOTER_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return "v_anonymous";
+  }
+}
+
+function readLocalLikes(): Record<string, any[]> {
+  try {
+    return JSON.parse(localStorage.getItem(LIKES_LS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalLikes(all: Record<string, any[]>) {
+  try {
+    localStorage.setItem(LIKES_LS_KEY, JSON.stringify(all));
+  } catch {
+    /* ignore */
+  }
+}
+
+async function loadLikes(newsUid: string): Promise<any[]> {
+  if (LIKES_REMOTE) {
+    try {
+      const base44 = createClient({
+        appId: LIKES_SOURCE.appId,
+        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      });
+      const records = await base44.entities[LIKES_SOURCE.entity].filter({ news_uid: newsUid });
+      if (Array.isArray(records)) return records;
+    } catch (e: any) {
+      console.warn("Failed to load likes:", e?.message);
+    }
+  }
+  return readLocalLikes()[newsUid] || [];
+}
+
+async function addLike(newsUid: string, voterId: string): Promise<any> {
+  if (LIKES_REMOTE) {
+    try {
+      const base44 = createClient({
+        appId: LIKES_SOURCE.appId,
+        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      });
+      const rec = await base44.entities[LIKES_SOURCE.entity].create({ news_uid: newsUid, voter_id: voterId });
+      return { ...rec, news_uid: newsUid, voter_id: voterId };
+    } catch (e: any) {
+      console.warn("Failed to save like remotely, saving locally:", e?.message);
+    }
+  }
+  const rec = {
+    id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    news_uid: newsUid,
+    voter_id: voterId,
+  };
+  const all = readLocalLikes();
+  all[newsUid] = [...(all[newsUid] || []), rec];
+  writeLocalLikes(all);
+  return rec;
+}
+
+async function removeLike(newsUid: string, rec: any): Promise<void> {
+  const isLocal = String(rec?.id || "").startsWith("local_");
+  if (LIKES_REMOTE && !isLocal && rec?.id) {
+    try {
+      const base44 = createClient({
+        appId: LIKES_SOURCE.appId,
+        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      });
+      await base44.entities[LIKES_SOURCE.entity].delete(rec.id);
+      return;
+    } catch (e: any) {
+      console.warn("Failed to remove like:", e?.message);
+      throw e;
+    }
+  }
+  const all = readLocalLikes();
+  all[newsUid] = (all[newsUid] || []).filter((l) => l.id !== rec.id);
+  writeLocalLikes(all);
 }
 
 // ─── Image with letter fallback ─────────────────────────────────────────────
@@ -591,6 +781,19 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
+
+  // Comments state
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentName, setCommentName] = useState("");
+  const [commentText, setCommentText] = useState("");
+  const [posting, setPosting] = useState(false);
+
+  // Likes state
+  const [likes, setLikes] = useState<any[]>([]);
+  const [likesLoading, setLikesLoading] = useState(false);
+  const [liking, setLiking] = useState(false);
+  const [voterId, setVoterId] = useState("");
 
   // ─── Theme ────────────────────────────────────────────────────────────────
   const c = {
@@ -747,6 +950,104 @@ export default function Home() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [selectedNews]);
+
+  // ─── Comments: saved name + load per news ─────────────────────────────────
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COMMENT_NAME_KEY);
+      if (saved) setCommentName(saved);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!selectedNews) {
+      setComments([]);
+      setCommentText("");
+      return;
+    }
+    let cancelled = false;
+    setCommentsLoading(true);
+    loadComments(getUid(selectedNews))
+      .then((list) => {
+        if (!cancelled) setComments(list);
+      })
+      .finally(() => {
+        if (!cancelled) setCommentsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedNews]);
+
+  const postComment = async () => {
+    if (!selectedNews || posting) return;
+    const name = commentName.trim().slice(0, 40) || (selectedLang === "hi" ? "अतिथि" : "Guest");
+    const text = commentText.trim().slice(0, 1000);
+    if (!text) return;
+    setPosting(true);
+    try {
+      const rec = await saveComment(getUid(selectedNews), name, text);
+      setComments((prev) => [rec, ...prev]);
+      setCommentText("");
+      try {
+        localStorage.setItem(COMMENT_NAME_KEY, name);
+      } catch {
+        /* ignore */
+      }
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  // ─── Likes: voter id + load per news ──────────────────────────────────────
+  useEffect(() => {
+    setVoterId(getVoterId());
+  }, []);
+
+  useEffect(() => {
+    if (!selectedNews) {
+      setLikes([]);
+      return;
+    }
+    let cancelled = false;
+    setLikesLoading(true);
+    loadLikes(getUid(selectedNews))
+      .then((list) => {
+        if (!cancelled) setLikes(list);
+      })
+      .finally(() => {
+        if (!cancelled) setLikesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedNews]);
+
+  // ek voter = ek like (duplicate records ko ek hi ginte hain)
+  const likeCount = new Set(likes.map((l) => l.voter_id || l.id)).size;
+  const myLike = voterId ? likes.find((l) => l.voter_id === voterId) : undefined;
+  const isLiked = !!myLike;
+
+  const toggleLike = async () => {
+    if (!selectedNews || liking || !voterId) return;
+    const uid = getUid(selectedNews);
+    setLiking(true);
+    try {
+      if (myLike) {
+        await removeLike(uid, myLike);
+        setLikes((prev) => prev.filter((l) => l.voter_id !== voterId));
+      } else {
+        const rec = await addLike(uid, voterId);
+        setLikes((prev) => [...prev, rec]);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setLiking(false);
+    }
+  };
 
   // ─── Weather ──────────────────────────────────────────────────────────────
   const fetchWeather = async (city: (typeof WEATHER_CITIES)[0]) => {
@@ -1019,7 +1320,7 @@ export default function Home() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/ceo.jpeg"
+          src="/logo.jpeg"
           alt="Rahul Swami"
           style={{
             width: 110,
@@ -1037,7 +1338,7 @@ export default function Home() {
   c={c.text}
   style={{ lineHeight: 1.2 }}
 >
-  Rahul Swami (CEO)
+  Fastzlive.com
 </Text>
           <br />
           <Text
@@ -1045,11 +1346,9 @@ export default function Home() {
   c={c.sub}
   style={{ lineHeight: 1.6 }}
 >
-  Chief Executive Officer (CEO) – Fastzlive
-
-  Rahul Swami leads Fastzlive with a vision to deliver fast, accurate, and reliable news through modern digital journalism and technology.
-
-  Vision: Making Fastzlive a trusted digital news brand.
+  Fastzlive is a digital news platform dedicated to delivering fast, accurate, and reliable news from 
+  across India and around the world. It covers a wide range of topics, including Breaking News, India, World, Politics, 
+  Haryana, Rajasthan, Business, Technology, Sports, Entertainment, Education, Health, Crime, and Agriculture.
 </Text>
         </Box>
       </Group>
@@ -1401,6 +1700,129 @@ export default function Home() {
     );
   };
 
+  // Like button (plain function) — lifetime save + count
+  const renderLike = () => (
+    <Group gap={10} wrap="nowrap">
+      <Button
+        variant={isLiked ? "filled" : "light"}
+        color="red"
+        radius="xl"
+        loading={liking}
+        disabled={likesLoading}
+        leftSection={<IconHeart size={18} fill={isLiked ? "#fff" : "none"} />}
+        onClick={toggleLike}
+      >
+        {isLiked ? t("liked") : t("like")} · {likeCount}
+      </Button>
+    </Group>
+  );
+
+  // Comments section (plain function, taaki typing me input focus na tute)
+  const renderComments = () => (
+    <Box mt={44} id="comments">
+      <Group gap={8} mb="md" wrap="nowrap">
+        <IconMessageCircle size={24} color={ACCENT} />
+        <Title order={3} className="fz-head" c={c.text} style={{ fontSize: 26, fontWeight: 700 }}>
+          {t("comments")} ({comments.length})
+        </Title>
+      </Group>
+
+      <Paper p="md" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+        <TextInput
+          placeholder={t("commentName")}
+          value={commentName}
+          maxLength={40}
+          onChange={(e) => setCommentName(e.currentTarget.value)}
+          radius="sm"
+          mb={8}
+          styles={{ input: { background: c.input, color: c.text, borderColor: c.border } }}
+        />
+        <Textarea
+          placeholder={t("commentPlaceholder")}
+          value={commentText}
+          maxLength={1000}
+          minRows={3}
+          autosize
+          onChange={(e) => setCommentText(e.currentTarget.value)}
+          radius="sm"
+          styles={{ input: { background: c.input, color: c.text, borderColor: c.border } }}
+        />
+        <Group justify="flex-end" mt={10}>
+          <Button
+            color="red"
+            radius="sm"
+            loading={posting}
+            disabled={!commentText.trim()}
+            rightSection={<IconSend size={16} />}
+            onClick={postComment}
+          >
+            {t("postComment")}
+          </Button>
+        </Group>
+      </Paper>
+
+      <Stack gap="sm" mt="md">
+        {commentsLoading ? (
+          <Group gap={8} justify="center" py="md">
+            <Loader size="xs" color={ACCENT} />
+            <Text size="sm" c={c.sub}>
+              {t("commentsLoading")}
+            </Text>
+          </Group>
+        ) : comments.length === 0 ? (
+          <Text size="sm" c={c.sub} ta="center" py="md">
+            {t("noComments")}
+          </Text>
+        ) : (
+          comments.map((cm, i) => (
+            <Paper key={cm.id || cm._id || i} p="sm" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
+              <Group gap={10} wrap="nowrap" align="flex-start">
+                <span
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: ACCENT,
+                    color: "#fff",
+                    fontWeight: 800,
+                    fontSize: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {(cm.name || "G").trim().charAt(0).toUpperCase()}
+                </span>
+                <Box style={{ minWidth: 0, flex: 1 }}>
+                  <Group gap={8} wrap="wrap" mb={2}>
+                    <Text size="sm" fw={700} c={c.text}>
+                      {cm.name || "Guest"}
+                    </Text>
+                    <Text size="xs" c={c.sub}>
+                      {commentTime(cm)
+                        ? new Date(commentTime(cm)).toLocaleString(dateLocale, {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : ""}
+                    </Text>
+                  </Group>
+                  <Text size="sm" c={c.readText} style={{ lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                    {cm.text}
+                  </Text>
+                </Box>
+              </Group>
+            </Paper>
+          ))
+        )}
+      </Stack>
+    </Box>
+  );
+
   const SocialCard = () => (
     <Paper p="md" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
       <Text className="fz-head" fw={700} size="lg" c={c.text} mb="sm">
@@ -1515,6 +1937,18 @@ export default function Home() {
                 {readMinutes(item)} {t("readTime")}
               </Text>
             </Group>
+            <Group gap={6} wrap="nowrap">
+              <IconHeart size={15} color={c.sub} />
+              <Text size="sm" c={c.sub}>
+                {likeCount} {t("likes")}
+              </Text>
+            </Group>
+            <Group gap={6} wrap="nowrap">
+              <IconMessageCircle size={15} color={c.sub} />
+              <Text size="sm" c={c.sub}>
+                {comments.length} {t("comments")}
+              </Text>
+            </Group>
           </Group>
 
           <Title
@@ -1529,6 +1963,9 @@ export default function Home() {
           <Box mb="lg" style={{ borderRadius: 14, overflow: "hidden" }}>
             <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} ratio="16 / 9" radius={14} letterSize="clamp(4rem, 14vw, 9rem)" />
           </Box>
+
+          {/* Like — lifetime save + count */}
+          <Box mb="md">{renderLike()}</Box>
 
           <Box mb="xl">
             <ShareRow />
@@ -1584,6 +2021,9 @@ export default function Home() {
 
           <Divider my="xl" color={c.border} />
           <ShareRow />
+
+          {/* Comments — lifetime save + count */}
+          {renderComments()}
 
           {related.length > 0 && (
             <Box mt={56}>
