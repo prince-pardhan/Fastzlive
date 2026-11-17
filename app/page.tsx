@@ -1348,7 +1348,7 @@ export default function Home() {
 >
   Fastzlive is a digital news platform dedicated to delivering fast, accurate, and reliable news from 
   across India and around the world. It covers a wide range of topics, including Breaking News, India, World, Politics, 
-  Haryana, Rajasthan, Business, Technology, Sports, Entertainment, Education, Health, Crime, and Agriculture.
+  Haryana, Rajasthan, Business, Technology, Sports, Entertainment, Education, Health, Crime, and Agriculture. (all word news)
 </Text>
         </Box>
       </Group>
