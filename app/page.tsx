@@ -100,21 +100,26 @@ const BASE44_SOURCES = [
 // Behtar: Next.js API route / server component se fetch karein.
 const PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN";
 
+// ─── Likes + Comments: SHARED (sabhi visitors ko dikhte hain, lifetime save) ─
+// 1) Base44 me apna app lo (naya ya purana) aur uska appId yahan daalo.
+// 2) Us app me 2 entity banao:
+//      Comment → news_uid (text), name (text), text (text)
+//      Like    → news_uid (text), voter_id (text)
+// 3) Dono entity ke permissions public rakho (Comment: create+read, Like: create+read+delete).
+// appId set nahi hai to sirf local test mode chalega (data sirf usi browser me dikhega).
+const SHARED_APP_ID = "YOUR_SHARED_APP_ID";
+const SHARED_READY = SHARED_APP_ID !== "YOUR_SHARED_APP_ID";
+const POLL_MS = 20000; // news khuli ho to har 20 sec me naye likes/comments laata hai
+
 // ─── Comments (lifetime save) ───────────────────────────────────────────────
-// Base44 me ek app banao, usme entity "Comment" (fields: news_uid, name, text)
-// aur uska appId yahan daalo. Entity ko public create/read allow karo.
-// appId set nahi hai to comments sirf us browser ke localStorage me save honge.
-const COMMENTS_SOURCE = { appId: "YOUR_COMMENTS_APP_ID", entity: "Comment" };
-const COMMENTS_REMOTE = COMMENTS_SOURCE.appId !== "YOUR_COMMENTS_APP_ID";
+const COMMENTS_SOURCE = { appId: SHARED_APP_ID, entity: "Comment" };
+const COMMENTS_REMOTE = SHARED_READY;
 const COMMENTS_LS_KEY = "fastzlive_comments_v1";
 const COMMENT_NAME_KEY = "fastzlive_comment_name";
 
 // ─── Likes (lifetime save) ──────────────────────────────────────────────────
-// Base44 app me entity "Like" banao (fields: news_uid, voter_id) aur uska appId yahan daalo.
-// Entity ko public create / read / delete allow karo (delete = unlike ke liye).
-// appId set nahi hai to likes sirf us browser ke localStorage me save honge.
-const LIKES_SOURCE = { appId: "YOUR_LIKES_APP_ID", entity: "Like" };
-const LIKES_REMOTE = LIKES_SOURCE.appId !== "YOUR_LIKES_APP_ID";
+const LIKES_SOURCE = { appId: SHARED_APP_ID, entity: "Like" };
+const LIKES_REMOTE = SHARED_READY;
 const LIKES_LS_KEY = "fastzlive_likes_v1";
 const VOTER_ID_KEY = "fastzlive_voter_id";
 
@@ -289,6 +294,7 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     like: "Like",
     liked: "Liked",
     likes: "Likes",
+    saveFailed: "Could not save. Please try again.",
   },
   hi: {
     loading: "सभी स्रोतों से समाचार लोड हो रहे हैं...",
@@ -358,6 +364,7 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     like: "लाइक",
     liked: "पसंद किया",
     likes: "लाइक्स",
+    saveFailed: "सेव नहीं हो पाया। कृपया दोबारा कोशिश करें।",
   },
 };
 
@@ -492,7 +499,16 @@ async function getNewsById(appId: string, entity: string, recordId: string) {
   return await base44.entities[entity].get(recordId);
 }
 
+// ─── Shared storage client (comments + likes) ───────────────────────────────
+const sharedClient = (appId: string) =>
+  createClient({
+    appId,
+    headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+  });
+
 // ─── Comments helpers ───────────────────────────────────────────────────────
+// Shared mode (SHARED_APP_ID set): sirf Base44 se padhta/likhta hai, fail ho to error aata hai.
+// Local mode (SHARED_APP_ID set nahi): sirf test ke liye, data usi browser me rehta hai.
 const commentTime = (cm: any): number => {
   const d = new Date(cm?.created_date || cm?.createdAt || cm?.date || 0).getTime();
   return isNaN(d) ? 0 : d;
@@ -506,34 +522,30 @@ function readLocalComments(): Record<string, any[]> {
   }
 }
 
-async function loadComments(newsUid: string): Promise<any[]> {
+// null = shared load fail hua (purana data screen par rehne do)
+async function loadComments(newsUid: string): Promise<any[] | null> {
   if (COMMENTS_REMOTE) {
     try {
-      const base44 = createClient({
-        appId: COMMENTS_SOURCE.appId,
-        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      const records = await sharedClient(COMMENTS_SOURCE.appId).entities[COMMENTS_SOURCE.entity].filter({
+        news_uid: newsUid,
       });
-      const records = await base44.entities[COMMENTS_SOURCE.entity].filter({ news_uid: newsUid });
       if (Array.isArray(records)) return records.slice().sort((a, b) => commentTime(b) - commentTime(a));
     } catch (e: any) {
       console.warn("Failed to load comments:", e?.message);
     }
+    return null;
   }
   return (readLocalComments()[newsUid] || []).slice().sort((a, b) => commentTime(b) - commentTime(a));
 }
 
 async function saveComment(newsUid: string, name: string, text: string): Promise<any> {
   if (COMMENTS_REMOTE) {
-    try {
-      const base44 = createClient({
-        appId: COMMENTS_SOURCE.appId,
-        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
-      });
-      const rec = await base44.entities[COMMENTS_SOURCE.entity].create({ news_uid: newsUid, name, text });
-      return { created_date: new Date().toISOString(), ...rec, name, text };
-    } catch (e: any) {
-      console.warn("Failed to save comment remotely, saving locally:", e?.message);
-    }
+    const rec = await sharedClient(COMMENTS_SOURCE.appId).entities[COMMENTS_SOURCE.entity].create({
+      news_uid: newsUid,
+      name,
+      text,
+    });
+    return { created_date: new Date().toISOString(), ...rec, name, text };
   }
   const rec = {
     id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -583,34 +595,29 @@ function writeLocalLikes(all: Record<string, any[]>) {
   }
 }
 
-async function loadLikes(newsUid: string): Promise<any[]> {
+// null = shared load fail hua (purana data screen par rehne do)
+async function loadLikes(newsUid: string): Promise<any[] | null> {
   if (LIKES_REMOTE) {
     try {
-      const base44 = createClient({
-        appId: LIKES_SOURCE.appId,
-        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
+      const records = await sharedClient(LIKES_SOURCE.appId).entities[LIKES_SOURCE.entity].filter({
+        news_uid: newsUid,
       });
-      const records = await base44.entities[LIKES_SOURCE.entity].filter({ news_uid: newsUid });
       if (Array.isArray(records)) return records;
     } catch (e: any) {
       console.warn("Failed to load likes:", e?.message);
     }
+    return null;
   }
   return readLocalLikes()[newsUid] || [];
 }
 
 async function addLike(newsUid: string, voterId: string): Promise<any> {
   if (LIKES_REMOTE) {
-    try {
-      const base44 = createClient({
-        appId: LIKES_SOURCE.appId,
-        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
-      });
-      const rec = await base44.entities[LIKES_SOURCE.entity].create({ news_uid: newsUid, voter_id: voterId });
-      return { ...rec, news_uid: newsUid, voter_id: voterId };
-    } catch (e: any) {
-      console.warn("Failed to save like remotely, saving locally:", e?.message);
-    }
+    const rec = await sharedClient(LIKES_SOURCE.appId).entities[LIKES_SOURCE.entity].create({
+      news_uid: newsUid,
+      voter_id: voterId,
+    });
+    return { ...rec, news_uid: newsUid, voter_id: voterId };
   }
   const rec = {
     id: `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -624,23 +631,50 @@ async function addLike(newsUid: string, voterId: string): Promise<any> {
 }
 
 async function removeLike(newsUid: string, rec: any): Promise<void> {
-  const isLocal = String(rec?.id || "").startsWith("local_");
-  if (LIKES_REMOTE && !isLocal && rec?.id) {
-    try {
-      const base44 = createClient({
-        appId: LIKES_SOURCE.appId,
-        headers: { Authorization: `Bearer ${PERSONAL_ACCESS_TOKEN}` },
-      });
-      await base44.entities[LIKES_SOURCE.entity].delete(rec.id);
-      return;
-    } catch (e: any) {
-      console.warn("Failed to remove like:", e?.message);
-      throw e;
-    }
+  if (LIKES_REMOTE) {
+    if (rec?.id) await sharedClient(LIKES_SOURCE.appId).entities[LIKES_SOURCE.entity].delete(rec.id);
+    return;
   }
   const all = readLocalLikes();
   all[newsUid] = (all[newsUid] || []).filter((l) => l.id !== rec.id);
   writeLocalLikes(all);
+}
+
+// Sabhi news ke like / comment count (feed list me dikhane ke liye)
+type CountsMap = { likes: Record<string, number>; comments: Record<string, number> };
+
+async function loadAllCounts(): Promise<CountsMap | null> {
+  try {
+    let likeRecs: any[];
+    let commentRecs: any[];
+    if (SHARED_READY) {
+      const [l, c] = await Promise.all([
+        sharedClient(LIKES_SOURCE.appId).entities[LIKES_SOURCE.entity].list("-created_date", 5000),
+        sharedClient(COMMENTS_SOURCE.appId).entities[COMMENTS_SOURCE.entity].list("-created_date", 5000),
+      ]);
+      likeRecs = Array.isArray(l) ? l : [];
+      commentRecs = Array.isArray(c) ? c : [];
+    } else {
+      likeRecs = Object.values(readLocalLikes()).flat();
+      commentRecs = Object.values(readLocalComments()).flat();
+    }
+    const likeSets: Record<string, Set<string>> = {};
+    likeRecs.forEach((r) => {
+      if (!r?.news_uid) return;
+      (likeSets[r.news_uid] ||= new Set()).add(r.voter_id || r.id);
+    });
+    const likes: Record<string, number> = {};
+    Object.keys(likeSets).forEach((k) => (likes[k] = likeSets[k].size));
+    const comments: Record<string, number> = {};
+    commentRecs.forEach((r) => {
+      if (!r?.news_uid) return;
+      comments[r.news_uid] = (comments[r.news_uid] || 0) + 1;
+    });
+    return { likes, comments };
+  } catch (e: any) {
+    console.warn("Failed to load counts:", e?.message);
+    return null;
+  }
 }
 
 // ─── Image with letter fallback ─────────────────────────────────────────────
@@ -794,6 +828,11 @@ export default function Home() {
   const [likesLoading, setLikesLoading] = useState(false);
   const [liking, setLiking] = useState(false);
   const [voterId, setVoterId] = useState("");
+
+  // Shared: action error + sabhi news ke counts + busy flag (auto-refresh ke liye)
+  const [actionError, setActionError] = useState(false);
+  const [counts, setCounts] = useState<CountsMap>({ likes: {}, comments: {} });
+  const busyRef = useRef(false);
 
   // ─── Theme ────────────────────────────────────────────────────────────────
   const c = {
@@ -951,7 +990,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [selectedNews]);
 
-  // ─── Comments: saved name + load per news ─────────────────────────────────
+  // ─── Comments: saved name + load per news (auto-refresh) ──────────────────
   useEffect(() => {
     try {
       const saved = localStorage.getItem(COMMENT_NAME_KEY);
@@ -962,22 +1001,32 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    setActionError(false);
     if (!selectedNews) {
       setComments([]);
       setCommentText("");
       return;
     }
     let cancelled = false;
+    const uid = getUid(selectedNews);
     setCommentsLoading(true);
-    loadComments(getUid(selectedNews))
+    loadComments(uid)
       .then((list) => {
-        if (!cancelled) setComments(list);
+        if (!cancelled && list) setComments(list);
       })
       .finally(() => {
         if (!cancelled) setCommentsLoading(false);
       });
+    // dusre visitors ke naye comments bhi dikhte rahein
+    const timer = setInterval(() => {
+      if (busyRef.current) return;
+      loadComments(uid).then((list) => {
+        if (!cancelled && list && !busyRef.current) setComments(list);
+      });
+    }, POLL_MS);
     return () => {
       cancelled = true;
+      clearInterval(timer);
     };
   }, [selectedNews]);
 
@@ -987,6 +1036,8 @@ export default function Home() {
     const text = commentText.trim().slice(0, 1000);
     if (!text) return;
     setPosting(true);
+    setActionError(false);
+    busyRef.current = true;
     try {
       const rec = await saveComment(getUid(selectedNews), name, text);
       setComments((prev) => [rec, ...prev]);
@@ -996,12 +1047,16 @@ export default function Home() {
       } catch {
         /* ignore */
       }
+    } catch (e: any) {
+      console.warn("Failed to save comment:", e?.message);
+      setActionError(true);
     } finally {
+      busyRef.current = false;
       setPosting(false);
     }
   };
 
-  // ─── Likes: voter id + load per news ──────────────────────────────────────
+  // ─── Likes: voter id + load per news (auto-refresh) ───────────────────────
   useEffect(() => {
     setVoterId(getVoterId());
   }, []);
@@ -1012,16 +1067,25 @@ export default function Home() {
       return;
     }
     let cancelled = false;
+    const uid = getUid(selectedNews);
     setLikesLoading(true);
-    loadLikes(getUid(selectedNews))
+    loadLikes(uid)
       .then((list) => {
-        if (!cancelled) setLikes(list);
+        if (!cancelled && list) setLikes(list);
       })
       .finally(() => {
         if (!cancelled) setLikesLoading(false);
       });
+    // dusre visitors ke naye likes bhi dikhte rahein
+    const timer = setInterval(() => {
+      if (busyRef.current) return;
+      loadLikes(uid).then((list) => {
+        if (!cancelled && list && !busyRef.current) setLikes(list);
+      });
+    }, POLL_MS);
     return () => {
       cancelled = true;
+      clearInterval(timer);
     };
   }, [selectedNews]);
 
@@ -1034,6 +1098,8 @@ export default function Home() {
     if (!selectedNews || liking || !voterId) return;
     const uid = getUid(selectedNews);
     setLiking(true);
+    setActionError(false);
+    busyRef.current = true;
     try {
       if (myLike) {
         await removeLike(uid, myLike);
@@ -1042,12 +1108,31 @@ export default function Home() {
         const rec = await addLike(uid, voterId);
         setLikes((prev) => [...prev, rec]);
       }
-    } catch {
-      /* ignore */
+    } catch (e: any) {
+      console.warn("Failed to update like:", e?.message);
+      setActionError(true);
     } finally {
+      busyRef.current = false;
       setLiking(false);
     }
   };
+
+  // ─── Feed list ke liye sabhi news ke like/comment counts ──────────────────
+  const detailOpen = !!selectedNews;
+  useEffect(() => {
+    if (detailOpen) return;
+    let cancelled = false;
+    const refresh = () =>
+      loadAllCounts().then((m) => {
+        if (!cancelled && m) setCounts(m);
+      });
+    refresh();
+    const timer = setInterval(refresh, POLL_MS * 3);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [detailOpen]);
 
   // ─── Weather ──────────────────────────────────────────────────────────────
   const fetchWeather = async (city: (typeof WEATHER_CITIES)[0]) => {
@@ -1289,19 +1374,36 @@ export default function Home() {
   `;
 
   // ─── Small render helpers (functions, taaki input focus na tute) ──────────
-  const metaLine = (item: any) => (
-    <Group gap={10} wrap="wrap">
-      <Text size="xs" c={c.sub}>
-        {fmtDate(item)}
-      </Text>
-      <Text size="xs" c={c.sub}>
-        {getTimeAgo(item)}
-      </Text>
-      <Text size="xs" c={c.sub}>
-        {readMinutes(item)} {t("readTime")}
-      </Text>
-    </Group>
-  );
+  const metaLine = (item: any) => {
+    const uid = getUid(item);
+    const lc = counts.likes[uid] || 0;
+    const cc = counts.comments[uid] || 0;
+    return (
+      <Group gap={10} wrap="wrap">
+        <Text size="xs" c={c.sub}>
+          {fmtDate(item)}
+        </Text>
+        <Text size="xs" c={c.sub}>
+          {getTimeAgo(item)}
+        </Text>
+        <Text size="xs" c={c.sub}>
+          {readMinutes(item)} {t("readTime")}
+        </Text>
+        <Group gap={4} wrap="nowrap">
+          <IconHeart size={13} color={c.sub} />
+          <Text size="xs" c={c.sub}>
+            {lc}
+          </Text>
+        </Group>
+        <Group gap={4} wrap="nowrap">
+          <IconMessageCircle size={13} color={c.sub} />
+          <Text size="xs" c={c.sub}>
+            {cc}
+          </Text>
+        </Group>
+      </Group>
+    );
+  };
 
   // CEO block: public/ceo.jpeg + naam (sirf read more / detail page me)
   const CeoBadge = ({ compact = false }: { compact?: boolean }) => {
@@ -1700,21 +1802,33 @@ export default function Home() {
     );
   };
 
-  // Like button (plain function) — lifetime save + count
+  // Like button (plain function) — shared, lifetime save + count
   const renderLike = () => (
-    <Group gap={10} wrap="nowrap">
-      <Button
-        variant={isLiked ? "filled" : "light"}
-        color="red"
-        radius="xl"
-        loading={liking}
-        disabled={likesLoading}
-        leftSection={<IconHeart size={18} fill={isLiked ? "#fff" : "none"} />}
-        onClick={toggleLike}
-      >
-        {isLiked ? t("liked") : t("like")} · {likeCount}
-      </Button>
-    </Group>
+    <Stack gap={6}>
+      <Group gap={10} wrap="nowrap">
+        <Button
+          variant={isLiked ? "filled" : "light"}
+          color="red"
+          radius="xl"
+          loading={liking}
+          disabled={likesLoading}
+          leftSection={<IconHeart size={18} fill={isLiked ? "#fff" : "none"} />}
+          onClick={toggleLike}
+        >
+          {isLiked ? t("liked") : t("like")} · {likeCount}
+        </Button>
+      </Group>
+      {actionError && (
+        <Text size="xs" c="red">
+          {t("saveFailed")}
+        </Text>
+      )}
+      {!SHARED_READY && process.env.NODE_ENV !== "production" && (
+        <Text size="xs" c="orange">
+          .
+        </Text>
+      )}
+    </Stack>
   );
 
   // Comments section (plain function, taaki typing me input focus na tute)
@@ -1747,7 +1861,10 @@ export default function Home() {
           radius="sm"
           styles={{ input: { background: c.input, color: c.text, borderColor: c.border } }}
         />
-        <Group justify="flex-end" mt={10}>
+        <Group justify="space-between" mt={10} wrap="nowrap">
+          <Text size="xs" c="red">
+            {actionError ? t("saveFailed") : ""}
+          </Text>
           <Button
             color="red"
             radius="sm"
@@ -1964,7 +2081,7 @@ export default function Home() {
             <NewsImage src={getImageSrc(item)} title={getRawTitle(item)} ratio="16 / 9" radius={14} letterSize="clamp(4rem, 14vw, 9rem)" />
           </Box>
 
-          {/* Like — lifetime save + count */}
+          {/* Like — sabhi visitors ko dikhta hai + count */}
           <Box mb="md">{renderLike()}</Box>
 
           <Box mb="xl">
@@ -2022,7 +2139,7 @@ export default function Home() {
           <Divider my="xl" color={c.border} />
           <ShareRow />
 
-          {/* Comments — lifetime save + count */}
+          {/* Comments — sabhi visitors ko dikhte hain + count */}
           {renderComments()}
 
           {related.length > 0 && (
