@@ -232,7 +232,7 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     topNews: "Trending now",
     popular: "Popular news",
     morePopular: "More popular news",
-    latest: "Latest news",
+    latest: "",
     noNews: "No news found. Try another category or search term.",
     backHome: "Back to home",
     moreNews: "Read next",
@@ -277,13 +277,11 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     tagline3: "First to know",
     headline: "Latest news from India & the world",
     headlineSub: "Stay updated every moment",
-    newsletter: "Subscribe to newsletter",
-    newsletterSub: "Get every morning's top news in your inbox",
+    
     emailPlaceholder: "Enter your email...",
     subscribe: "Subscribe",
     subscribed: "Thanks! You are subscribed.",
-    promo1: "A new way of news",
-    promo2: "Fast | Accurate | Trusted",
+    
     promo3: "Always with you",
     comments: "Comments",
     commentName: "Your name",
@@ -303,7 +301,7 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     topNews: "अभी ट्रेंडिंग",
     popular: "लोकप्रिय खबरें",
     morePopular: "और लोकप्रिय खबरें",
-    latest: "ताज़ा समाचार",
+    latest: "",
     noNews: "कोई समाचार नहीं मिला। दूसरी श्रेणी या शब्द आज़माएं।",
     backHome: "होम पर वापस",
     moreNews: "यह भी पढ़ें",
@@ -347,13 +345,13 @@ const UI_TRANSLATIONS: Record<string, Record<string, string>> = {
     tagline3: "सबसे पहले",
     headline: "देश-दुनिया की ताज़ा खबरें",
     headlineSub: "अब हर पल रहें अपडेट",
-    newsletter: "न्यूजलेटर सब्सक्राइब करें",
-    newsletterSub: "हर सुबह की ताज़ा खबरें अपने ईमेल पर पाएं",
+    
+    
     emailPlaceholder: "अपना ईमेल दर्ज करें...",
     subscribe: "सब्सक्राइब करें",
     subscribed: "धन्यवाद! आप सब्सक्राइब हो गए हैं।",
-    promo1: "खबरों का नया अंदाज़",
-    promo2: "तेज़ | सटीक | भरोसेमंद",
+    
+    
     promo3: "हमेशा आपके साथ",
     comments: "कमेंट्स",
     commentName: "आपका नाम",
@@ -2458,86 +2456,9 @@ export default function Home() {
   );
 
   // Newsletter
-  const renderNewsletter = () => (
-    <Paper p="md" radius="md" withBorder bg={c.card} style={{ borderColor: c.border }}>
-      <Group gap={10} wrap="nowrap" mb={4}>
-        <IconMail size={34} color={ACCENT} stroke={1.6} />
-        <Text className="fz-head" fw={800} c={c.text} style={{ fontSize: 20, lineHeight: 1.2 }}>
-          {t("newsletter")}
-        </Text>
-      </Group>
-      <Text size="sm" c={c.sub} mb="sm" ta="center" className="fz-head">
-        {t("newsletterSub")}
-      </Text>
-      {subscribed ? (
-        <Text size="sm" fw={700} c="green" ta="center" py="sm">
-          {t("subscribed")}
-        </Text>
-      ) : (
-        <>
-          <TextInput
-            placeholder={t("emailPlaceholder")}
-            value={email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-            radius="sm"
-            mb={8}
-            styles={{ input: { background: c.input, color: c.text, borderColor: c.border } }}
-          />
-          {/* TODO: yahan apni API/Base44 entity se email save karwa lein */}
-          <Button
-            fullWidth
-            color="red"
-            radius="sm"
-            rightSection={<IconSend size={16} />}
-            onClick={() => {
-              if (/^\S+@\S+\.\S+$/.test(email)) setSubscribed(true);
-            }}
-          >
-            {t("subscribe")}
-          </Button>
-        </>
-      )}
-    </Paper>
-  );
-
+ 
   // Promo banner
-  const renderPromo = () => (
-    <div
-      style={{
-        borderRadius: 6,
-        overflow: "hidden",
-        background: "linear-gradient(120deg, #1a0306 0%, #5c0610 50%, #b0000e 100%)",
-        color: "#fff",
-        textAlign: "center",
-        padding: "18px 14px 16px",
-        border: "1px solid rgba(255,255,255,.12)",
-      }}
-    >
-      <div className="fz-head" style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>
-        {t("promo1")}
-      </div>
-      <div className="fz-head" style={{ fontSize: 14, fontWeight: 600, margin: "4px 0 10px", opacity: 0.95 }}>
-        {t("promo2")}
-      </div>
-      <div className="fz-head" style={{ fontSize: 30, fontWeight: 800, letterSpacing: -1.2, lineHeight: 1 }}>
-        <IconWorld size={26} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-        Fastz<span style={{ color: "#ff5560" }}>live</span>
-      </div>
-      <span
-        style={{
-          display: "inline-block",
-          marginTop: 10,
-          background: ACCENT,
-          borderRadius: 999,
-          padding: "3px 16px",
-          fontSize: 12,
-          fontWeight: 700,
-        }}
-      >
-        {t("promo3")}
-      </span>
-    </div>
-  );
+ 
 
   // Desh-videsh + manoranjan
   const renderSectionCard = (item: any) => (
@@ -2678,8 +2599,8 @@ export default function Home() {
             <div className="fz-col fz-col3">
               {renderPopular()}
               <div className="fz-col">
-                {renderNewsletter()}
-                {renderPromo()}
+               
+                
               </div>
             </div>
           </div>
@@ -2689,9 +2610,7 @@ export default function Home() {
         <Grid mt={showMain ? 28 : 0}>
           <Grid.Col span={{ base: 12, lg: 8 }}>
             <Box ref={feedRef}>
-              <Title order={2} className="fz-head" mb="md" c={c.text} style={{ fontSize: 28, fontWeight: 700 }}>
-                {t("latest")}
-              </Title>
+              
 
               {filteredNews.length === 0 ? (
                 <Center py={60}>
