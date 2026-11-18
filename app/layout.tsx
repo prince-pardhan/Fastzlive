@@ -235,6 +235,14 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <ColorSchemeScript />
+
+        {/* Google AdSense Account Verification */}
+        <meta
+          name="google-adsense-account"
+          content="ca-pub-5422038841401226"
+        />
+
+        {/* Bing Webmaster Verification */}
         <meta
           name="msvalidate.01"
           content="D8637ABD40A906283CD53357F69E615A"
