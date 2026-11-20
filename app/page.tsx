@@ -72,8 +72,9 @@ import { RiTwitterXLine, RiSlideshow3Fill } from "react-icons/ri";
 import { FaSquareFacebook } from "react-icons/fa6";
 import { BsPinterest } from "react-icons/bs";
 import { SiRumble } from "react-icons/si";
-
+import { FaMedium } from "react-icons/fa"
 import { createClient } from "@base44/sdk";
+import { BsSubstack } from "react-icons/bs";
 
 // ─── Base44 sources ─────────────────────────────────────────────────────────
 const BASE44_SOURCES = [
@@ -774,6 +775,8 @@ const SOCIAL_GROUPS = [
       { label: "Blogger", href: "https://fastzlive.blogspot.com/", color: "#16a34a", Icon: FaBloggerB },
       { label: "Pinterest", href: "https://in.pinterest.com/Fastzlive/_profile/", color: "#E60023", Icon: BsPinterest },
       { label: "Facebook", href: "https://www.facebook.com/share/19eNsgpE4H/", color: "#1877F2", Icon: FaFacebookF },
+      { label: "Medium", href: "https://medium.com/@liveu5440", color: "#1877F2", Icon: FaMedium },
+      { label: "Substack", href: "https://substack.com/@fastzlive", color: "#1877F2", Icon: BsSubstack },
     ],
   },
 ];
