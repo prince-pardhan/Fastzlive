@@ -1312,13 +1312,58 @@ export default function Home() {
 
   // ─── Share ────────────────────────────────────────────────────────────────
   const shareUrl = () => (typeof window !== "undefined" ? window.location.href : "");
+
+  // Link copy karne par IMAGE + LINK dono copy hote hain
+  // - WhatsApp / Gmail / Docs me paste karne par image + title + link (rich HTML)
+  // - Plain text jagah (notes, chat input) me paste karne par title + image URL + link
   const copyLink = async () => {
+    const url = shareUrl();
+    const title = selectedNews ? getTitle(selectedNews) : BRAND_NAME;
+    const rawImg = selectedNews ? getImageSrc(selectedNews) : null;
+    let img = "";
+    if (rawImg) {
+      try {
+        img = new URL(rawImg, url).toString();
+      } catch {
+        img = rawImg;
+      }
+    }
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+    const html =
+      `<div>` +
+      (img ? `<a href="${esc(url)}"><img src="${esc(img)}" alt="${esc(title)}" style="max-width:100%;height:auto;" /></a><br/>` : "") +
+      `<a href="${esc(url)}">${esc(title)}</a><br/>` +
+      `<a href="${esc(url)}">${esc(url)}</a>` +
+      `</div>`;
+    const plain = [title, img, url].filter(Boolean).join("\n");
+
+    let ok = false;
     try {
-      await navigator.clipboard.writeText(shareUrl());
+      if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([plain], { type: "text/plain" }),
+          }),
+        ]);
+        ok = true;
+      }
+    } catch {
+      /* fallback neeche */
+    }
+    if (!ok) {
+      try {
+        await navigator.clipboard.writeText(plain);
+        ok = true;
+      } catch {
+        /* ignore */
+      }
+    }
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* ignore */
     }
   };
 
